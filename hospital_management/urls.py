@@ -7,6 +7,8 @@ from accounts.views import dashboard
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', dashboard, name='dashboard'),
+    
+    # Existing apps
     path('accounts/', include('accounts.urls')),
     path('patients/', include('patients.urls')),
     path('doctors/', include('doctors.urls')),
@@ -15,6 +17,12 @@ urlpatterns = [
     path('billing/', include('billing.urls')),
     path('medical-records/', include('medical_records.urls')),
     path('reports/', include('reports.urls')),
+    
+    # New apps
+    path('employees/', include('employees.urls')),
+    path('suppliers/', include('suppliers.urls')),
+    path('attendance/', include('attendance.urls')),
+    path('financial/', include('financial.urls')),
 ]
 
 if settings.DEBUG:

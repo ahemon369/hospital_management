@@ -137,6 +137,13 @@ FILE: templates/base.html
         .logout-btn i {
             margin-right: 0.75rem;
         }
+
+        /* Menu Section Divider */
+        .menu-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 0.5rem 1.5rem;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -181,6 +188,27 @@ FILE: templates/base.html
             <a href="{% url 'reports:reports_home' %}" class="{% if 'reports' in request.path %}active{% endif %}">
                 <i class="fas fa-chart-line"></i>
                 <span>Reports</span>
+            </a>
+
+            <!-- Divider -->
+            <div class="menu-divider"></div>
+
+            <!-- NEW MODULES -->
+            <a href="{% url 'employees:employee_list' %}" class="{% if 'employees' in request.path %}active{% endif %}">
+                <i class="fas fa-users-cog"></i>
+                <span>Employees</span>
+            </a>
+            <a href="{% url 'suppliers:supplier_list' %}" class="{% if 'suppliers' in request.path %}active{% endif %}">
+                <i class="fas fa-truck"></i>
+                <span>Suppliers</span>
+            </a>
+            <a href="{% url 'attendance:attendance_dashboard' %}" class="{% if 'attendance' in request.path %}active{% endif %}">
+                <i class="fas fa-clock"></i>
+                <span>Attendance</span>
+            </a>
+            <a href="{% url 'financial:financial_dashboard' %}" class="{% if 'financial' in request.path %}active{% endif %}">
+                <i class="fas fa-wallet"></i>
+                <span>Financial</span>
             </a>
         </div>
         

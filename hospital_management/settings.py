@@ -46,6 +46,12 @@ INSTALLED_APPS = [
     'billing',
     'medical_records',
     'reports',
+
+    # New apps
+    'employees',      
+    'suppliers',      
+    'attendance',    
+    'financial',      
 ]
 
 MIDDLEWARE = [
