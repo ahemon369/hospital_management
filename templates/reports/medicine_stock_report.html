@@ -1,0 +1,368 @@
+{% extends 'base.html' %}
+
+{% block title %}Medicine Stock Report - HMS{% endblock %}
+{% block page_title %}Medicine Stock Report{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-pills text-warning me-2"></i>Medicine Stock Report</h2>
+            <p class="text-muted mb-0">Monitor inventory levels and stock alerts across all medicines</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'reports:reports_home' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Back
+            </a>
+            <a href="{% url 'reports:export_report_pdf' 'medicine_stock' %}" class="btn btn-danger">
+                <i class="fas fa-file-pdf me-1"></i>Export PDF
+            </a>
+            <a href="{% url 'reports:export_report_excel' 'medicine_stock' %}" class="btn btn-success">
+                <i class="fas fa-file-excel me-1"></i>Export Excel
+            </a>
+            <a href="{% url 'reports:export_report_csv' 'medicine_stock' %}" class="btn btn-info">
+                <i class="fas fa-file-csv me-1"></i>Export CSV
+            </a>
+        </div>
+    </div>
+    
+    <!-- Stock Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-2">Total Medicines</h6>
+                            <h2 class="mb-0">{{ total_medicines }}</h2>
+                            <small class="opacity-75">Active items</small>
+                        </div>
+                        <i class="fas fa-pills fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-2">In Stock</h6>
+                            <h2 class="mb-0">{{ in_stock }}</h2>
+                            <small class="opacity-75">Available medicines</small>
+                        </div>
+                        <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-2">Low Stock</h6>
+                            <h2 class="mb-0">{{ low_stock }}</h2>
+                            <small class="opacity-75">Need reorder</small>
+                        </div>
+                        <i class="fas fa-exclamation-triangle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-2">Out of Stock</h6>
+                            <h2 class="mb-0">{{ out_of_stock }}</h2>
+                            <small class="opacity-75">Urgent action needed</small>
+                        </div>
+                        <i class="fas fa-times-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stock Value Analysis -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-dollar-sign text-success me-2"></i>Stock Value Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Total Purchase Value</span>
+                            <h4 class="mb-0 text-primary">৳{{ total_purchase_value|floatformat:2 }}</h4>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-primary" style="width: 100%">100%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Potential Revenue</span>
+                            <h4 class="mb-0 text-success">৳{{ total_selling_value|floatformat:2 }}</h4>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-success" style="width: 100%">+{{ profit_margin|floatformat:0 }}%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Expected Profit Margin:</strong> ৳{{ expected_profit|floatformat:2 }} ({{ profit_margin|floatformat:1 }}%)
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie text-info me-2"></i>Stock Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="fas fa-circle text-success me-2"></i>Adequate Stock (>50 units)</span>
+                            <strong>{{ adequate_stock }} ({{ adequate_percent|floatformat:0 }}%)</strong>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-success" style="width: {{ adequate_percent }}%">{{ adequate_stock }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="fas fa-circle text-warning me-2"></i>Moderate Stock (11-50 units)</span>
+                            <strong>{{ moderate_stock }} ({{ moderate_percent|floatformat:0 }}%)</strong>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-warning" style="width: {{ moderate_percent }}%">{{ moderate_stock }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="fas fa-circle text-danger me-2"></i>Low/Out of Stock (≤10 units)</span>
+                            <strong>{{ critical_stock }} ({{ critical_percent|floatformat:0 }}%)</strong>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-danger" style="width: {{ critical_percent }}%">{{ critical_stock }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Critical Alerts -->
+    {% if critical_medicines %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>Critical Stock Alerts</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Medicine Name</th>
+                            <th>Category</th>
+                            <th>Current Stock</th>
+                            <th>Status</th>
+                            <th>Purchase Price</th>
+                            <th>Selling Price</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for medicine in critical_medicines %}
+                        <tr class="{% if medicine.stock_quantity == 0 %}table-danger{% else %}table-warning{% endif %}">
+                            <td><strong>{{ medicine.name }}</strong></td>
+                            <td>{{ medicine.category }}</td>
+                            <td>
+                                <span class="badge bg-{% if medicine.stock_quantity == 0 %}danger{% else %}warning{% endif %}">
+                                    {{ medicine.stock_quantity }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if medicine.stock_quantity == 0 %}danger{% else %}warning{% endif %}">
+                                    {% if medicine.stock_quantity == 0 %}Out of Stock{% else %}Low Stock{% endif %}
+                                </span>
+                            </td>
+                            <td>৳{{ medicine.purchase_price|floatformat:2 }}</td>
+                            <td>৳{{ medicine.selling_price|floatformat:2 }}</td>
+                            <td>
+                                <a href="{% url 'pharmacy:medicine_update' medicine.pk %}" class="btn btn-sm btn-{% if medicine.stock_quantity == 0 %}danger{% else %}warning{% endif %}">
+                                    {% if medicine.stock_quantity == 0 %}Order Now{% else %}Reorder{% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Expiring Soon -->
+    {% if expiring_medicines %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="fas fa-calendar-times me-2"></i>Medicines Expiring Soon (Within 30 Days)</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Medicine Name</th>
+                            <th>Stock Quantity</th>
+                            <th>Expiry Date</th>
+                            <th>Days Remaining</th>
+                            <th>Value at Risk</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for medicine in expiring_medicines %}
+                        <tr>
+                            <td><strong>{{ medicine.name }}</strong></td>
+                            <td>{{ medicine.stock_quantity }} units</td>
+                            <td>{{ medicine.expiry_date|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge bg-warning">{{ medicine.expiry_date|timeuntil }}</span>
+                            </td>
+                            <td>৳{% widthratio medicine.stock_quantity 1 medicine.purchase_price %}</td>
+                            <td>
+                                <a href="{% url 'pharmacy:medicine_update' medicine.pk %}" class="btn btn-sm btn-info">
+                                    Discount Sale
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Full Stock List -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Complete Stock Inventory ({{ total_medicines }} items)</h5>
+            <input type="text" id="searchMedicine" class="form-control form-control-sm w-25" placeholder="Search medicines...">
+        </div>
+        <div class="card-body">
+            {% if all_medicines %}
+                <div class="table-responsive">
+                    <table class="table table-hover table-sm" id="medicineTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Manufacturer</th>
+                                <th>Stock</th>
+                                <th>Purchase Price</th>
+                                <th>Selling Price</th>
+                                <th>Expiry</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for medicine in all_medicines %}
+                            <tr>
+                                <td>{{ medicine.medicine_id }}</td>
+                                <td><strong>{{ medicine.name }}</strong></td>
+                                <td>{{ medicine.category }}</td>
+                                <td>{{ medicine.manufacturer|default:"N/A" }}</td>
+                                <td>
+                                    <span class="badge bg-{% if medicine.stock_quantity == 0 %}danger{% elif medicine.stock_quantity <= 10 %}warning{% else %}success{% endif %}">
+                                        {{ medicine.stock_quantity }}
+                                    </span>
+                                </td>
+                                <td>৳{{ medicine.purchase_price|floatformat:2 }}</td>
+                                <td>৳{{ medicine.selling_price|floatformat:2 }}</td>
+                                <td>
+                                    {% if medicine.expiry_date %}
+                                        {{ medicine.expiry_date|date:"M Y" }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if medicine.stock_quantity > 0 %}success{% else %}danger{% endif %}">
+                                        {% if medicine.stock_quantity > 0 %}In Stock{% else %}Out of Stock{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'pharmacy:medicine_detail' medicine.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-pills fa-5x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Medicines Found</h5>
+                    <p class="text-muted">Add medicines to see stock report</p>
+                    <a href="{% url 'pharmacy:medicine_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add Medicine
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Search functionality
+document.getElementById('searchMedicine').addEventListener('keyup', function() {
+    const searchValue = this.value.toLowerCase();
+    const table = document.getElementById('medicineTable');
+    const rows = table.getElementsByTagName('tr');
+    
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const text = row.textContent.toLowerCase();
+        
+        if (text.includes(searchValue)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    }
+});
+
+// Auto-refresh every 5 minutes for real-time updates
+setTimeout(function() {
+    location.reload();
+}, 300000);
+</script>
+
+<style>
+@media print {
+    .btn, .form-control, .card-header {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}

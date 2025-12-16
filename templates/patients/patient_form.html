@@ -1,0 +1,155 @@
+<!-- ============================================
+FILE: templates/patients/patient_form.html
+============================================ -->
+{% extends 'base.html' %}
+
+{% block title %}{% if is_update %}Update{% else %}Add{% endif %} Patient - HMS{% endblock %}
+{% block page_title %}{% if is_update %}Update{% else %}Add New{% endif %} Patient{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <h2 class="mb-1">
+            <i class="fas fa-user-plus text-primary me-2"></i>
+            {% if is_update %}Update Patient{% else %}Add New Patient{% endif %}
+        </h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'patients:patient_list' %}">Patients</a></li>
+                <li class="breadcrumb-item active">{% if is_update %}Update{% else %}Add{% endif %}</li>
+            </ol>
+        </nav>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-injured me-2"></i>
+                        Patient Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                <input type="text" name="first_name" class="form-control" 
+                                       value="{% if is_update %}{{ patient.user.first_name }}{% endif %}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" name="last_name" class="form-control" 
+                                       value="{% if is_update %}{{ patient.user.last_name }}{% endif %}" required>
+                            </div>
+                        </div>
+                        
+                        {% if not is_update %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Username <span class="text-danger">*</span></label>
+                                <input type="text" name="username" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Password <span class="text-danger">*</span></label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Patient ID <span class="text-danger">*</span></label>
+                            <input type="text" name="patient_id" class="form-control" 
+                                   placeholder="PAT-00001" required>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" 
+                                   value="{% if is_update %}{{ patient.user.email }}{% endif %}" required>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                                <input type="date" name="date_of_birth" class="form-control" 
+                                       value="{% if is_update %}{{ patient.date_of_birth|date:'Y-m-d' }}{% endif %}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Gender <span class="text-danger">*</span></label>
+                                <select name="gender" class="form-select" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="M" {% if is_update and patient.gender == 'M' %}selected{% endif %}>Male</option>
+                                    <option value="F" {% if is_update and patient.gender == 'F' %}selected{% endif %}>Female</option>
+                                    <option value="O" {% if is_update and patient.gender == 'O' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Blood Group <span class="text-danger">*</span></label>
+                                <select name="blood_group" class="form-select" required>
+                                    <option value="">Select Blood Group</option>
+                                    <option value="A+" {% if is_update and patient.blood_group == 'A+' %}selected{% endif %}>A+</option>
+                                    <option value="A-" {% if is_update and patient.blood_group == 'A-' %}selected{% endif %}>A-</option>
+                                    <option value="B+" {% if is_update and patient.blood_group == 'B+' %}selected{% endif %}>B+</option>
+                                    <option value="B-" {% if is_update and patient.blood_group == 'B-' %}selected{% endif %}>B-</option>
+                                    <option value="O+" {% if is_update and patient.blood_group == 'O+' %}selected{% endif %}>O+</option>
+                                    <option value="O-" {% if is_update and patient.blood_group == 'O-' %}selected{% endif %}>O-</option>
+                                    <option value="AB+" {% if is_update and patient.blood_group == 'AB+' %}selected{% endif %}>AB+</option>
+                                    <option value="AB-" {% if is_update and patient.blood_group == 'AB-' %}selected{% endif %}>AB-</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                <input type="tel" name="phone_number" class="form-control" 
+                                       value="{% if is_update %}{{ patient.phone_number }}{% endif %}" 
+                                       placeholder="01XXXXXXXXX" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Address <span class="text-danger">*</span></label>
+                            <textarea name="address" class="form-control" rows="3" required>{% if is_update %}{{ patient.address }}{% endif %}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Emergency Contact <span class="text-danger">*</span></label>
+                            <input type="tel" name="emergency_contact" class="form-control" 
+                                   value="{% if is_update %}{{ patient.emergency_contact }}{% endif %}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Medical History</label>
+                            <textarea name="medical_history" class="form-control" rows="3" 
+                                      placeholder="Previous medical conditions, surgeries, etc.">{% if is_update %}{{ patient.medical_history }}{% endif %}</textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Allergies</label>
+                            <textarea name="allergies" class="form-control" rows="2" 
+                                      placeholder="Known allergies to medications, food, etc.">{% if is_update %}{{ patient.allergies }}{% endif %}</textarea>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>
+                                {% if is_update %}Update Patient{% else %}Add Patient{% endif %}
+                            </button>
+                            <a href="{% url 'patients:patient_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

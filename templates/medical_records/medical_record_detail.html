@@ -1,0 +1,451 @@
+{% extends 'base.html' %}
+
+{% block title %}Medical Record Details - HMS{% endblock %}
+{% block page_title %}Medical Record Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-file-medical text-primary me-2"></i>
+                    Medical Record Details
+                </h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'medical_records:medical_record_list' %}">Medical Records</a></li>
+                        <li class="breadcrumb-item active">Record Details</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'medical_records:medical_record_update' record.pk %}" class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i> Edit Record
+                </a>
+                <a href="{% url 'medical_records:medical_record_print' record.pk %}" class="btn btn-success" target="_blank">
+                    <i class="fas fa-print me-1"></i> Print
+                </a>
+                <button class="btn btn-danger" onclick="deleteRecord()">
+                    <i class="fas fa-trash me-1"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Patient & Doctor Info Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Record Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 60px; height: 60px; font-size: 24px;">
+                                    <i class="fas fa-user-injured"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Patient</small>
+                                    <h5 class="mb-0">{{ record.patient.user.get_full_name }}</h5>
+                                    <small class="text-muted">ID: {{ record.patient.patient_id }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 60px; height: 60px; font-size: 24px;">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Attending Doctor</small>
+                                    <h5 class="mb-0">Dr. {{ record.doctor.user.get_full_name }}</h5>
+                                    <small class="text-muted">{{ record.doctor.specialization }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <div class="border-start border-primary border-4 ps-3 mb-3">
+                                <small class="text-muted d-block">Visit Date</small>
+                                <h6 class="mb-0">
+                                    <i class="fas fa-calendar text-primary me-2"></i>
+                                    {{ record.visit_date|date:"F d, Y" }}
+                                </h6>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border-start border-info border-4 ps-3 mb-3">
+                                <small class="text-muted d-block">Visit Type</small>
+                                <h6 class="mb-0">
+                                    <i class="fas fa-stethoscope text-info me-2"></i>
+                                    {{ record.get_visit_type_display }}
+                                </h6>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border-start border-success border-4 ps-3 mb-3">
+                                <small class="text-muted d-block">Record Created</small>
+                                <h6 class="mb-0">
+                                    <i class="fas fa-clock text-success me-2"></i>
+                                    {{ record.created_at|date:"M d, Y" }}
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vital Signs Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-heartbeat me-2"></i>
+                        Vital Signs
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-thermometer-half fa-2x text-danger mb-2"></i>
+                                <h6 class="text-muted small mb-1">Temperature</h6>
+                                <h4 class="mb-0">
+                                    {% if record.temperature %}
+                                        {{ record.temperature }}°F
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-heartbeat fa-2x text-danger mb-2"></i>
+                                <h6 class="text-muted small mb-1">Blood Pressure</h6>
+                                <h4 class="mb-0">
+                                    {% if record.blood_pressure %}
+                                        {{ record.blood_pressure }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-heart fa-2x text-danger mb-2"></i>
+                                <h6 class="text-muted small mb-1">Heart Rate</h6>
+                                <h4 class="mb-0">
+                                    {% if record.heart_rate %}
+                                        {{ record.heart_rate }} bpm
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <i class="fas fa-weight fa-2x text-info mb-2"></i>
+                                <h6 class="text-muted small mb-1">Weight</h6>
+                                <h4 class="mb-0">
+                                    {% if record.weight %}
+                                        {{ record.weight }} kg
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical Information Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-notes-medical me-2"></i>
+                        Medical Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Chief Complaint -->
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-2">
+                            <i class="fas fa-comment-medical me-2"></i>
+                            Chief Complaint
+                        </h6>
+                        <div class="bg-light p-3 rounded">
+                            <p class="mb-0">{{ record.chief_complaint }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Symptoms -->
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-2">
+                            <i class="fas fa-clipboard-list me-2"></i>
+                            Symptoms
+                        </h6>
+                        <div class="bg-light p-3 rounded">
+                            {% if record.symptoms %}
+                                <p class="mb-0" style="white-space: pre-line;">{{ record.symptoms }}</p>
+                            {% else %}
+                                <p class="text-muted mb-0">No symptoms recorded</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Diagnosis -->
+                    <div class="mb-4">
+                        <h6 class="text-primary mb-2">
+                            <i class="fas fa-diagnoses me-2"></i>
+                            Diagnosis
+                        </h6>
+                        <div class="alert alert-primary mb-0" role="alert">
+                            <p class="mb-0" style="white-space: pre-line;">{{ record.diagnosis }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Prescription -->
+                    <div class="mb-4">
+                        <h6 class="text-success mb-2">
+                            <i class="fas fa-prescription me-2"></i>
+                            Prescription
+                        </h6>
+                        <div class="border border-success rounded p-3">
+                            {% if record.prescription %}
+                                <p class="mb-0" style="white-space: pre-line;">{{ record.prescription }}</p>
+                            {% else %}
+                                <p class="text-muted mb-0">No prescription recorded</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Lab Tests -->
+                    <div class="mb-4">
+                        <h6 class="text-warning mb-2">
+                            <i class="fas fa-flask me-2"></i>
+                            Lab Tests Recommended
+                        </h6>
+                        <div class="bg-light p-3 rounded">
+                            {% if record.lab_tests %}
+                                <p class="mb-0" style="white-space: pre-line;">{{ record.lab_tests }}</p>
+                            {% else %}
+                                <p class="text-muted mb-0">No lab tests recommended</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Additional Notes -->
+                    {% if record.notes %}
+                    <div class="mb-0">
+                        <h6 class="text-secondary mb-2">
+                            <i class="fas fa-sticky-note me-2"></i>
+                            Additional Notes
+                        </h6>
+                        <div class="bg-light p-3 rounded">
+                            <p class="mb-0" style="white-space: pre-line;">{{ record.notes }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-tasks me-2"></i>
+                        Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'medical_records:medical_record_update' record.pk %}" class="btn btn-outline-primary">
+                            <i class="fas fa-edit me-2"></i> Edit Record
+                        </a>
+                        <a href="{% url 'medical_records:medical_record_print' record.pk %}" class="btn btn-outline-success" target="_blank">
+                            <i class="fas fa-print me-2"></i> Print Record
+                        </a>
+                        <button class="btn btn-outline-info" onclick="window.location.href='mailto:{{ record.patient.user.email }}'">
+                            <i class="fas fa-envelope me-2"></i> Email Patient
+                        </button>
+                        <a href="{% url 'medical_records:medical_record_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patient Summary Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Patient Summary
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Full Name</small>
+                        <strong>{{ record.patient.user.get_full_name }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Patient ID</small>
+                        <strong>{{ record.patient.patient_id }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Email</small>
+                        <strong>{{ record.patient.user.email }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Phone</small>
+                        <strong>{{ record.patient.phone|default:"Not provided" }}</strong>
+                    </div>
+                    <div class="mb-0">
+                        <small class="text-muted d-block">Date of Birth</small>
+                        <strong>{{ record.patient.date_of_birth|date:"M d, Y"|default:"Not provided" }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Record Timeline Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Record Timeline
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item mb-3">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 35px; height: 35px; font-size: 14px;">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Created</small>
+                                    <strong>{{ record.created_at|date:"M d, Y g:i A" }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        {% if record.updated_at != record.created_at %}
+                        <div class="timeline-item mb-3">
+                            <div class="d-flex align-items-start">
+                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 35px; height: 35px; font-size: 14px;">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Last Updated</small>
+                                    <strong>{{ record.updated_at|date:"M d, Y g:i A" }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reference Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-dark">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Normal Vital Ranges
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled small mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-thermometer-half text-danger me-2"></i>
+                            <strong>Temperature:</strong> 97.8°F - 99.1°F
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-heartbeat text-danger me-2"></i>
+                            <strong>Blood Pressure:</strong> 90/60 - 120/80 mmHg
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-heart text-danger me-2"></i>
+                            <strong>Heart Rate:</strong> 60 - 100 bpm
+                        </li>
+                        <li class="mb-0">
+                            <i class="fas fa-weight text-info me-2"></i>
+                            <strong>BMI:</strong> 18.5 - 24.9 (Normal)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteRecord() {
+    if (confirm('Are you sure you want to delete this medical record? This action cannot be undone.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "medical_records:medical_record_delete" record.pk %}';
+        
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrfmiddlewaretoken';
+        csrfToken.value = '{{ csrf_token }}';
+        
+        form.appendChild(csrfToken);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+
+<style>
+.timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 40px;
+    height: calc(100% - 20px);
+    width: 2px;
+    background: #dee2e6;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+@media print {
+    .btn, .card-header, nav, .col-lg-4 {
+        display: none !important;
+    }
+    
+    .col-lg-8 {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+</style>
+{% endblock %}

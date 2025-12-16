@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_update %}Update{% else %}Add{% endif %} Doctor - HMS{% endblock %}
+{% block page_title %}{% if is_update %}Update{% else %}Add New{% endif %} Doctor{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <h2><i class="fas fa-user-md text-primary me-2"></i>{% if is_update %}Update Doctor{% else %}Add New Doctor{% endif %}</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'doctors:doctor_list' %}">Doctors</a></li>
+                <li class="breadcrumb-item active">{% if is_update %}Update{% else %}Add{% endif %}</li>
+            </ol>
+        </nav>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-md me-2"></i>
+                        Doctor Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <h6 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>Personal Information</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">First Name <span class="text-danger">*</span></label>
+                                <input type="text" name="first_name" class="form-control" 
+                                       value="{% if is_update %}{{ doctor.user.first_name }}{% endif %}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" name="last_name" class="form-control" 
+                                       value="{% if is_update %}{{ doctor.user.last_name }}{% endif %}" required>
+                            </div>
+                        </div>
+                        
+                        {% if not is_update %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                                <input type="text" name="username" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Password <span class="text-danger">*</span></label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Employee ID <span class="text-danger">*</span></label>
+                            <input type="text" name="employee_id" class="form-control" 
+                                   placeholder="DOC-001" required>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="email" class="form-control" 
+                                   value="{% if is_update %}{{ doctor.user.email }}{% endif %}" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Phone Number <span class="text-danger">*</span></label>
+                            <input type="tel" name="phone_number" class="form-control" 
+                                   value="{% if is_update %}{{ doctor.phone_number }}{% endif %}"
+                                   placeholder="01XXXXXXXXX" required>
+                        </div>
+                        
+                        <hr>
+                        
+                        <h6 class="mb-3 text-primary"><i class="fas fa-graduation-cap me-2"></i>Professional Information</h6>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Specialization <span class="text-danger">*</span></label>
+                                <input type="text" name="specialization" class="form-control" 
+                                       value="{% if is_update %}{{ doctor.specialization }}{% endif %}"
+                                       placeholder="e.g., Cardiology" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Experience (Years) <span class="text-danger">*</span></label>
+                                <input type="number" name="experience" class="form-control" 
+                                       value="{% if is_update %}{{ doctor.experience }}{% endif %}"
+                                       min="0" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Qualification <span class="text-danger">*</span></label>
+                            <input type="text" name="qualification" class="form-control" 
+                                   value="{% if is_update %}{{ doctor.qualification }}{% endif %}"
+                                   placeholder="e.g., MBBS, MD" required>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Consultation Fee (৳) <span class="text-danger">*</span></label>
+                                <input type="number" name="consultation_fee" class="form-control" 
+                                       value="{% if is_update %}{{ doctor.consultation_fee }}{% endif %}"
+                                       step="0.01" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Room Number</label>
+                                <input type="text" name="room_number" class="form-control" 
+                                       value="{% if is_update %}{{ doctor.room_number }}{% endif %}"
+                                       placeholder="e.g., 201">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Available Days <span class="text-danger">*</span></label>
+                                <input type="text" name="available_days" class="form-control" 
+                                       value="{% if is_update %}{{ doctor.available_days }}{% endif %}"
+                                       placeholder="e.g., Mon-Fri" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Available Time <span class="text-danger">*</span></label>
+                                <input type="text" name="available_time" class="form-control" 
+                                       value="{% if is_update %}{{ doctor.available_time }}{% endif %}"
+                                       placeholder="e.g., 9:00 AM - 5:00 PM" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_available" 
+                                       id="is_available" {% if is_update and doctor.is_available %}checked{% else %}checked{% endif %}>
+                                <label class="form-check-label fw-bold" for="is_available">
+                                    Currently Available for Appointments
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>
+                                {% if is_update %}Update Doctor{% else %}Add Doctor{% endif %}
+                            </button>
+                            <a href="{% url 'doctors:doctor_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

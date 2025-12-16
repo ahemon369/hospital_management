@@ -1,0 +1,217 @@
+<!-- ============================================
+FILE: templates/billing/bill_list.html
+============================================ -->
+{% extends 'base.html' %}
+
+{% block title %}Billing Management - HMS{% endblock %}
+{% block page_title %}Billing Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="fas fa-file-invoice-dollar text-primary me-2"></i>
+                Billing Management
+            </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Billing</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+            <a href="{% url 'billing:bill_create' %}" class="btn btn-success">
+                <i class="fas fa-plus me-1"></i> Create Bill
+            </a>
+        </div>
+    </div>
+    
+    <!-- Revenue Overview -->
+    <div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+        <div class="card-body text-white">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <i class="fas fa-chart-line fa-3x mb-2 opacity-75"></i>
+                    <h2 class="mb-1">Revenue Overview</h2>
+                    <p class="mb-0 opacity-75">Total revenue and billing statistics</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <h1 class="display-4 mb-0">৳ {{ total_revenue|floatformat:2 }}</h1>
+                    <p class="mb-0">Total Revenue</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #28a745 !important;">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Paid Bills</h6>
+                    <h2 class="mb-0">{{ paid_bills }}</h2>
+                    <i class="fas fa-check-circle text-success opacity-25 position-absolute" 
+                       style="font-size: 3rem; right: 20px; top: 20px;"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #dc3545 !important;">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Unpaid Bills</h6>
+                    <h2 class="mb-0">{{ unpaid_bills }}</h2>
+                    <i class="fas fa-times-circle text-danger opacity-25 position-absolute" 
+                       style="font-size: 3rem; right: 20px; top: 20px;"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #ffc107 !important;">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Partial Payments</h6>
+                    <h2 class="mb-0">{{ partial_bills }}</h2>
+                    <i class="fas fa-exclamation-circle text-warning opacity-25 position-absolute" 
+                       style="font-size: 3rem; right: 20px; top: 20px;"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #17a2b8 !important;">
+                <div class="card-body">
+                    <h6 class="text-muted mb-2">Total Bills</h6>
+                    <h2 class="mb-0">{{ total_bills }}</h2>
+                    <i class="fas fa-file-invoice text-info opacity-25 position-absolute" 
+                       style="font-size: 3rem; right: 20px; top: 20px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search and Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" 
+                               name="search" 
+                               class="form-control" 
+                               placeholder="Search by Bill ID or Patient Name..." 
+                               value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="PAID" {% if status_filter == 'PAID' %}selected{% endif %}>Paid</option>
+                        <option value="UNPAID" {% if status_filter == 'UNPAID' %}selected{% endif %}>Unpaid</option>
+                        <option value="PARTIAL" {% if status_filter == 'PARTIAL' %}selected{% endif %}>Partial</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-1"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Bills List -->
+    {% if bills %}
+        <div class="row">
+            {% for bill in bills %}
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100 {% if bill.status == 'UNPAID' %}border-danger{% elif bill.status == 'PARTIAL' %}border-warning{% endif %}">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <strong>{{ bill.bill_number }}</strong>
+                        </h6>
+                        <span class="badge bg-{% if bill.status == 'PAID' %}success{% elif bill.status == 'PARTIAL' %}warning{% else %}danger{% endif %}">
+                            {{ bill.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="fas fa-calendar me-2 text-muted"></i>
+                            <small class="text-muted">{{ bill.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                     style="width: 40px; height: 40px; font-size: 16px;">
+                                    {{ bill.patient.user.first_name.0|upper }}{{ bill.patient.user.last_name.0|upper }}
+                                </div>
+                                <div>
+                                    <strong>{{ bill.patient.get_full_name }}</strong>
+                                    <div class="small text-muted">{{ bill.patient.patient_id }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <small class="text-muted">Total Amount</small>
+                                <h5 class="mb-0">৳ {{ bill.total_amount|floatformat:2 }}</h5>
+                            </div>
+                            <div class="col-6 text-end">
+                                <small class="text-muted">Amount Paid</small>
+                                <h5 class="mb-0 text-success">৳ {{ bill.amount_paid|floatformat:2 }}</h5>
+                            </div>
+                        </div>
+                        
+                        {% if bill.balance > 0 %}
+                        <div class="alert alert-warning mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Balance Due:</strong> ৳ {{ bill.balance|floatformat:2 }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'billing:bill_detail' bill.pk %}" 
+                               class="btn btn-outline-primary flex-fill">
+                                <i class="fas fa-eye me-1"></i> View Details
+                            </a>
+                            <a href="{% url 'billing:bill_pdf' bill.pk %}" 
+                               class="btn btn-danger" 
+                               target="_blank">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                            {% if bill.status == 'UNPAID' or bill.status == 'PARTIAL' %}
+                            <button class="btn btn-success" 
+                                    onclick="alert('Payment recording functionality')">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-file-invoice fa-5x text-muted mb-4"></i>
+                <h4 class="text-muted mb-3">No Bills Found</h4>
+                <p class="text-muted mb-4">There are no billing records matching your criteria</p>
+                <a href="{% url 'billing:bill_create' %}" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i> Create New Bill
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

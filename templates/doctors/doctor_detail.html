@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Details - {{ doctor.get_full_name }} - HMS{% endblock %}
+{% block page_title %}Doctor Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="fas fa-user-md text-primary me-2"></i>
+                Dr. {{ doctor.get_full_name }}
+            </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'doctors:doctor_list' %}">Doctors</a></li>
+                    <li class="breadcrumb-item active">{{ doctor.employee_id }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+            {% if doctor.is_available %}
+            <span class="badge bg-success fs-5 px-3 py-2">
+                <i class="fas fa-check-circle me-1"></i> Available
+            </span>
+            {% else %}
+            <span class="badge bg-danger fs-5 px-3 py-2">
+                <i class="fas fa-times-circle me-1"></i> Unavailable
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Doctor Information Card -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Doctor Information
+                    </h5>
+                    <span class="badge bg-white text-primary">{{ doctor.employee_id }}</span>
+                </div>
+                <div class="card-body">
+                    <!-- Personal Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-12 mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 80px; height: 80px; font-size: 32px;">
+                                    {{ doctor.user.first_name.0|upper }}{{ doctor.user.last_name.0|upper }}
+                                </div>
+                                <div>
+                                    <h3 class="mb-0">Dr. {{ doctor.get_full_name }}</h3>
+                                    <p class="text-muted mb-0">
+                                        <i class="fas fa-id-badge me-1"></i>{{ doctor.employee_id }}
+                                    </p>
+                                    <p class="text-muted mb-0">
+                                        <i class="fas fa-stethoscope me-1"></i>{{ doctor.specialization }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Contact Information -->
+                    <h6 class="text-primary mb-3">
+                        <i class="fas fa-address-card me-2"></i>Contact Information
+                    </h6>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fas fa-envelope me-1"></i> Email
+                            </h6>
+                            <p class="mb-0">{{ doctor.user.email }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fas fa-phone me-1"></i> Phone Number
+                            </h6>
+                            <p class="mb-0">{{ doctor.phone_number|default:"Not provided" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fas fa-user me-1"></i> Username
+                            </h6>
+                            <p class="mb-0">{{ doctor.user.username }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fas fa-door-open me-1"></i> Room Number
+                            </h6>
+                            <p class="mb-0">{{ doctor.room_number|default:"Not assigned" }}</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Professional Information -->
+                    <h6 class="text-primary mb-3">
+                        <i class="fas fa-user-graduate me-2"></i>Professional Information
+                    </h6>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fas fa-stethoscope me-1"></i> Specialization
+                            </h6>
+                            <p class="mb-0"><span class="badge bg-primary">{{ doctor.specialization }}</span></p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fas fa-certificate me-1"></i> Qualification
+                            </h6>
+                            <p class="mb-0">{{ doctor.qualification }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fas fa-briefcase me-1"></i> Experience
+                            </h6>
+                            <p class="mb-0">{{ doctor.experience_years }} years</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fas fa-money-bill-wave me-1"></i> Consultation Fee
+                            </h6>
+                            <p class="mb-0"><strong class="text-success">৳{{ doctor.consultation_fee|floatformat:2 }}</strong></p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Availability Information -->
+                    <h6 class="text-primary mb-3">
+                        <i class="fas fa-calendar-check me-2"></i>Availability
+                    </h6>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fas fa-calendar-alt me-1"></i> Available Days
+                            </h6>
+                            <p class="mb-0">{{ doctor.available_days|default:"Not specified" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fas fa-clock me-1"></i> Available Time
+                            </h6>
+                            <p class="mb-0">{{ doctor.available_time|default:"Not specified" }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-muted mb-1">
+                                <i class="fas fa-toggle-on me-1"></i> Current Status
+                            </h6>
+                            <p class="mb-0">
+                                {% if doctor.is_available %}
+                                <span class="badge bg-success">Available for Appointments</span>
+                                {% else %}
+                                <span class="badge bg-danger">Not Available</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Timestamps -->
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Joined: {{ doctor.created_at|date:"M d, Y h:i A" }}
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <small class="text-muted">
+                                <i class="fas fa-sync me-1"></i>
+                                Last Updated: {{ doctor.updated_at|date:"M d, Y h:i A" }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointments Card -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        Recent Appointments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if appointments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Patient</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in appointments %}
+                                <tr>
+                                    <td>{{ appointment.appointment_date|date:"M d, Y" }}</td>
+                                    <td>{{ appointment.patient.get_full_name }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if appointment.status == 'COMPLETED' %}success{% elif appointment.status == 'CANCELLED' %}danger{% else %}warning{% endif %}">
+                                            {{ appointment.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'appointments:appointment_detail' appointment.pk %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No appointments found</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics & Actions Card -->
+        <div class="col-lg-4 mb-4">
+            <!-- Statistics Card -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Statistics
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-12 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h2 class="mb-0 text-primary">{{ total_appointments }}</h2>
+                                    <small class="text-muted">Total Appointments</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h3 class="mb-0 text-success">{{ completed_appointments }}</h3>
+                                    <small class="text-muted">Completed</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h3 class="mb-0 text-warning">{{ pending_appointments }}</h3>
+                                    <small class="text-muted">Pending</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>
+                        Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'doctors:doctor_update' doctor.pk %}" class="btn btn-primary">
+                            <i class="fas fa-edit me-1"></i> Edit Doctor
+                        </a>
+                        <a href="{% url 'doctors:doctor_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to List
+                        </a>
+                        <hr>
+                        <button onclick="deleteDoctor()" class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-1"></i> Delete Doctor
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script>
+// Delete Doctor Function
+function deleteDoctor() {
+    if (confirm('Are you sure you want to delete this doctor? This action cannot be undone!')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "doctors:doctor_delete" doctor.pk %}';
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = '{{ csrf_token }}';
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+
+<style>
+@media print {
+    .btn, .card-header, nav, .breadcrumb, hr:last-of-type, .col-lg-4 {
+        display: none !important;
+    }
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .col-lg-8 {
+        width: 100% !important;
+    }
+}
+</style>
+{% endblock %}

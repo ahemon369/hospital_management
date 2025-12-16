@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctors Management - HMS{% endblock %}
+{% block page_title %}Doctor Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-user-md text-primary me-2"></i>Doctor Management</h2>
+        <a href="{% url 'doctors:doctor_create' %}" class="btn btn-primary">
+            <i class="fas fa-user-plus me-1"></i>Add New Doctor
+        </a>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-primary shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-md fa-3x text-primary mb-3"></i>
+                    <h3 class="mb-0">{{ total_doctors }}</h3>
+                    <small class="text-muted">Total Doctors</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="Search by name or specialization..." value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i>Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>All Doctors ({{ doctors.count }})</h5>
+        </div>
+        <div class="card-body">
+            {% if doctors %}
+                <div class="row">
+                    {% for doctor in doctors %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 32px;">
+                                        {{ doctor.user.first_name.0|upper }}{{ doctor.user.last_name.0|upper }}
+                                    </div>
+                                    <h5 class="mb-1">Dr. {{ doctor.user.get_full_name }}</h5>
+                                    <p class="text-muted mb-1 small">{{ doctor.employee_id }}</p>
+                                    <span class="badge bg-info">{{ doctor.specialization }}</span>
+                                </div>
+
+                                <hr>
+
+                                <div class="mb-3">
+                                    <p class="mb-2 small">
+                                        <i class="fas fa-envelope text-primary me-2"></i>
+                                        {{ doctor.user.email }}
+                                    </p>
+                                    <p class="mb-2 small">
+                                        <i class="fas fa-phone text-success me-2"></i>
+                                        {{ doctor.phone_number }}
+                                    </p>
+                                    <p class="mb-2 small">
+                                        <i class="fas fa-graduation-cap text-warning me-2"></i>
+                                        {{ doctor.qualification }}
+                                    </p>
+                                    <p class="mb-2 small">
+                                        <i class="fas fa-briefcase text-info me-2"></i>
+                                        {{ doctor.experience }} years experience
+                                    </p>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="text-center flex-fill">
+                                        <h6 class="mb-0 text-primary">{{ doctor.total_appointments|default:0 }}</h6>
+                                        <small class="text-muted">Total</small>
+                                    </div>
+                                    <div class="text-center flex-fill border-start border-end">
+                                        <h6 class="mb-0 text-success">{{ doctor.completed_appointments|default:0 }}</h6>
+                                        <small class="text-muted">Completed</small>
+                                    </div>
+                                    <div class="text-center flex-fill">
+                                        <h6 class="mb-0 text-info">
+                                            {% if doctor.total_appointments > 0 %}
+                                                {{ doctor.completed_appointments|default:0 }}%
+                                            {% else %}
+                                                0%
+                                            {% endif %}
+                                        </h6>
+                                        <small class="text-muted">Rate</small>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <a href="{% url 'doctors:doctor_detail' doctor.pk %}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>View Profile
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-user-md fa-5x text-muted mb-4"></i>
+                    <h4 class="text-muted mb-3">No Doctors Found</h4>
+                    <a href="{% url 'doctors:doctor_create' %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-1"></i>Add New Doctor
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

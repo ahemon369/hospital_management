@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - {{ bill.bill_number }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .invoice-header {
+            border-bottom: 3px solid #28a745;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+
+        .hospital-info h1 {
+            color: #28a745;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .hospital-info p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .invoice-title {
+            text-align: right;
+        }
+
+        .invoice-title h2 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .invoice-title .bill-number {
+            color: #28a745;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .invoice-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .meta-box h3 {
+            color: #28a745;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #28a745;
+            padding-bottom: 5px;
+        }
+
+        .meta-box p {
+            color: #333;
+            font-size: 14px;
+            line-height: 1.8;
+            margin: 5px 0;
+        }
+
+        .meta-box strong {
+            color: #000;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+        }
+
+        .invoice-table thead {
+            background: #28a745;
+            color: white;
+        }
+
+        .invoice-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .invoice-table th:last-child {
+            text-align: right;
+        }
+
+        .invoice-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .invoice-table td:last-child {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .invoice-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .totals-section {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .totals-row {
+            display: flex;
+            justify-content: flex-end;
+            padding: 8px 0;
+            font-size: 15px;
+        }
+
+        .totals-row span:first-child {
+            width: 150px;
+            text-align: right;
+            padding-right: 20px;
+            color: #666;
+        }
+
+        .totals-row span:last-child {
+            width: 120px;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .subtotal-row {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+
+        .grand-total {
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+
+        .payment-status {
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .payment-status.paid {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .payment-status.unpaid {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .payment-status.partial {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+
+        .payment-status h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .payment-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .payment-detail-item {
+            text-align: center;
+        }
+
+        .payment-detail-item strong {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .payment-detail-item span {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .notes-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+        }
+
+        .notes-section h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .notes-section p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .invoice-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+        }
+
+        .signature-box {
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 2px solid #333;
+            width: 200px;
+            margin-bottom: 10px;
+        }
+
+        .signature-box p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .invoice-container {
+                box-shadow: none;
+                padding: 20px;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Invoice Header -->
+        <div class="invoice-header">
+            <div class="hospital-info">
+                <h1>🏥 Hospital Management System</h1>
+                <p>123 Medical Center Road<br>
+                Dhaka, Bangladesh<br>
+                Phone: +880 1XXX-XXXXXX<br>
+                Email: info@hospital.com</p>
+            </div>
+            <div class="invoice-title">
+                <h2>INVOICE</h2>
+                <p class="bill-number">#{{ bill.bill_number }}</p>
+                <p style="color: #666; font-size: 14px;">Date: {{ bill.created_at|date:"M d, Y" }}</p>
+            </div>
+        </div>
+
+        <!-- Patient & Bill Info -->
+        <div class="invoice-meta">
+            <div class="meta-box">
+                <h3>Bill To:</h3>
+                <p><strong>{{ bill.patient.get_full_name }}</strong></p>
+                <p>Patient ID: {{ bill.patient.patient_id }}</p>
+                <p>Email: {{ bill.patient.user.email }}</p>
+                {% if bill.patient.phone_number %}
+                <p>Phone: {{ bill.patient.phone_number }}</p>
+                {% endif %}
+                {% if bill.patient.address %}
+                <p>Address: {{ bill.patient.address }}</p>
+                {% endif %}
+            </div>
+            <div class="meta-box">
+                <h3>Invoice Details:</h3>
+                <p><strong>Invoice Number:</strong> {{ bill.bill_number }}</p>
+                <p><strong>Invoice Date:</strong> {{ bill.created_at|date:"F d, Y" }}</p>
+                <p><strong>Status:</strong> 
+                    <span style="color: {% if bill.status == 'PAID' %}#28a745{% elif bill.status == 'PARTIAL' %}#ffc107{% else %}#dc3545{% endif %}; font-weight: bold;">
+                        {{ bill.get_status_display }}
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Invoice Items Table -->
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th style="text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if bill.consultation_fee > 0 %}
+                <tr>
+                    <td>
+                        <strong>Consultation Fee</strong><br>
+                        <small style="color: #999;">Doctor consultation charges</small>
+                    </td>
+                    <td>৳ {{ bill.consultation_fee|floatformat:2 }}</td>
+                </tr>
+                {% endif %}
+
+                {% if bill.medicine_charges > 0 %}
+                <tr>
+                    <td>
+                        <strong>Medicine Charges</strong><br>
+                        <small style="color: #999;">Pharmacy/medicine costs</small>
+                    </td>
+                    <td>৳ {{ bill.medicine_charges|floatformat:2 }}</td>
+                </tr>
+                {% endif %}
+
+                {% if bill.lab_charges > 0 %}
+                <tr>
+                    <td>
+                        <strong>Laboratory Charges</strong><br>
+                        <small style="color: #999;">Laboratory test charges</small>
+                    </td>
+                    <td>৳ {{ bill.lab_charges|floatformat:2 }}</td>
+                </tr>
+                {% endif %}
+
+                {% if bill.other_charges > 0 %}
+                <tr>
+                    <td>
+                        <strong>Other Charges</strong><br>
+                        <small style="color: #999;">Miscellaneous charges</small>
+                    </td>
+                    <td>৳ {{ bill.other_charges|floatformat:2 }}</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+
+        <!-- Totals Section -->
+        <div class="totals-section">
+            <div class="totals-row subtotal-row">
+                <span>Subtotal:</span>
+                <span>৳ {{ bill.subtotal|floatformat:2 }}</span>
+            </div>
+
+            {% if bill.discount > 0 %}
+            <div class="totals-row" style="color: #dc3545;">
+                <span>Discount:</span>
+                <span>- ৳ {{ bill.discount|floatformat:2 }}</span>
+            </div>
+            {% endif %}
+
+            {% if bill.tax > 0 %}
+            <div class="totals-row" style="color: #17a2b8;">
+                <span>Tax:</span>
+                <span>+ ৳ {{ bill.tax|floatformat:2 }}</span>
+            </div>
+            {% endif %}
+
+            <div class="totals-row grand-total">
+                <span>GRAND TOTAL:</span>
+                <span>৳ {{ bill.total_amount|floatformat:2 }}</span>
+            </div>
+        </div>
+
+        <!-- Payment Status -->
+        <div class="payment-status {% if bill.status == 'PAID' %}paid{% elif bill.status == 'PARTIAL' %}partial{% else %}unpaid{% endif %}">
+            <h3>
+                {% if bill.status == 'PAID' %}
+                    ✓ FULLY PAID
+                {% elif bill.status == 'PARTIAL' %}
+                    ⚠ PARTIALLY PAID
+                {% else %}
+                    ✗ UNPAID
+                {% endif %}
+            </h3>
+            <div class="payment-details">
+                <div class="payment-detail-item">
+                    <strong>Total Amount</strong>
+                    <span>৳ {{ bill.total_amount|floatformat:2 }}</span>
+                </div>
+                <div class="payment-detail-item">
+                    <strong>Amount Paid</strong>
+                    <span style="color: #28a745;">৳ {{ bill.amount_paid|floatformat:2 }}</span>
+                </div>
+                <div class="payment-detail-item">
+                    <strong>Balance Due</strong>
+                    <span style="color: {% if bill.balance > 0 %}#dc3545{% else %}#28a745{% endif %};">
+                        ৳ {{ bill.balance|floatformat:2 }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes Section -->
+        {% if bill.notes %}
+        <div class="notes-section">
+            <h4>Additional Notes:</h4>
+            <p>{{ bill.notes|linebreaks }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Signature Section -->
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <p><strong>Patient Signature</strong></p>
+                <p>{{ bill.patient.get_full_name }}</p>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line"></div>
+                <p><strong>Authorized Signature</strong></p>
+                <p>Hospital Administrator</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="invoice-footer">
+            <p>Thank you for choosing our hospital!</p>
+            <p>Generated on {{ bill.updated_at|date:"F d, Y h:i A" }}</p>
+            <p style="margin-top: 10px; font-size: 11px;">
+                This is a computer-generated invoice and does not require a signature.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Auto print when page loads (optional)
+        // window.onload = function() { window.print(); }
+    </script>
+</body>
+</html>

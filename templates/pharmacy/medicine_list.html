@@ -1,0 +1,229 @@
+<!-- ============================================
+FILE: templates/pharmacy/medicine_list.html
+============================================ -->
+{% extends 'base.html' %}
+
+{% block title %}Pharmacy Inventory - HMS{% endblock %}
+{% block page_title %}Pharmacy Inventory{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                <i class="fas fa-pills text-primary me-2"></i>
+                Pharmacy Inventory
+            </h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Pharmacy</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+            <a href="{% url 'pharmacy:medicine_create' %}" class="btn btn-success">
+                <i class="fas fa-plus me-1"></i> Add Medicine
+            </a>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #667eea !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Total Medicines</h6>
+                            <h2 class="mb-0">{{ total_medicines }}</h2>
+                        </div>
+                        <i class="fas fa-pills fa-3x" style="color: #667eea; opacity: 0.3;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #28a745 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">In Stock</h6>
+                            <h2 class="mb-0">{{ in_stock }}</h2>
+                        </div>
+                        <i class="fas fa-check-circle fa-3x text-success opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #ffc107 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Low Stock</h6>
+                            <h2 class="mb-0">{{ low_stock }}</h2>
+                        </div>
+                        <i class="fas fa-exclamation-triangle fa-3x text-warning opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="border-left: 4px solid #dc3545 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Out of Stock</h6>
+                            <h2 class="mb-0">{{ out_of_stock }}</h2>
+                        </div>
+                        <i class="fas fa-times-circle fa-3x text-danger opacity-25"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search and Filter -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" 
+                               name="search" 
+                               class="form-control" 
+                               placeholder="Search medicines by name, category, or ID..." 
+                               value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i> Search
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <div class="btn-group w-100">
+                        <a href="?stock=low" class="btn btn-outline-warning {% if stock_filter == 'low' %}active{% endif %}">
+                            <i class="fas fa-exclamation-triangle me-1"></i> Low Stock
+                        </a>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="mt-3">
+                <div class="btn-group" role="group">
+                    <a href="?" class="btn btn-sm btn-outline-primary {% if not stock_filter %}active{% endif %}">
+                        <i class="fas fa-list me-1"></i> All Medicines
+                    </a>
+                    <a href="?stock=low" class="btn btn-sm btn-outline-warning {% if stock_filter == 'low' %}active{% endif %}">
+                        <i class="fas fa-exclamation-triangle me-1"></i> Low Stock
+                    </a>
+                    <a href="?stock=out" class="btn btn-sm btn-outline-danger {% if stock_filter == 'out' %}active{% endif %}">
+                        <i class="fas fa-times-circle me-1"></i> Out of Stock
+                    </a>
+                    <button class="btn btn-sm btn-outline-info">
+                        <i class="fas fa-calendar-times me-1"></i> Expiring Soon
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Medicines List -->
+    {% if medicines %}
+        <div class="row">
+            {% for medicine in medicines %}
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100 {% if medicine.is_out_of_stock %}border-danger{% elif medicine.is_low_stock %}border-warning{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                         style="width: 50px; height: 50px; font-size: 24px;">
+                                        <i class="fas fa-pills"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-0">{{ medicine.name }}</h5>
+                                        <small class="text-muted">{{ medicine.category }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="badge bg-info">{{ medicine.medicine_id }}</span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="mb-1"><i class="fas fa-industry text-muted me-2"></i><strong>Manufacturer:</strong></p>
+                            <p class="text-muted mb-0">{{ medicine.manufacturer }}</p>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Stock Quantity</strong></p>
+                                <h4 class="mb-0 {% if medicine.is_out_of_stock %}text-danger{% elif medicine.is_low_stock %}text-warning{% else %}text-success{% endif %}">
+                                    {{ medicine.stock_quantity|floatformat:0 }} {{ medicine.unit }}
+                                </h4>
+                                {% if medicine.is_out_of_stock %}
+                                    <span class="badge bg-danger">Out of Stock</span>
+                                {% elif medicine.is_low_stock %}
+                                    <span class="badge bg-warning">Low Stock</span>
+                                {% else %}
+                                    <span class="badge bg-success">In Stock</span>
+                                {% endif %}
+                            </div>
+                            <div class="col-6 text-end">
+                                <p class="mb-1"><strong>Selling Price</strong></p>
+                                <h4 class="mb-0 text-primary">৳ {{ medicine.selling_price|floatformat:2 }}</h4>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="mb-1"><strong>Expiry Date</strong></p>
+                            <p class="mb-0 {% if medicine.is_expired %}text-danger{% else %}text-muted{% endif %}">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                {{ medicine.expiry_date|date:"M d, Y" }}
+                                {% if medicine.is_expired %}
+                                    <span class="badge bg-danger ms-2">
+                                        <i class="fas fa-exclamation-circle"></i> Expired
+                                    </span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'pharmacy:medicine_detail' medicine.pk %}" 
+                               class="btn btn-outline-info flex-fill">
+                                <i class="fas fa-eye me-1"></i> View
+                            </a>
+                            <a href="{% url 'pharmacy:medicine_update' medicine.pk %}" 
+                               class="btn btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-pills fa-5x text-muted mb-4"></i>
+                <h4 class="text-muted mb-3">No Medicines Found</h4>
+                <p class="text-muted mb-4">There are no medicines in the inventory</p>
+                <a href="{% url 'pharmacy:medicine_create' %}" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i> Add New Medicine
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

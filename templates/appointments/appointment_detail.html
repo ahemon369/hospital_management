@@ -1,0 +1,399 @@
+{% extends 'base.html' %}
+
+{% block title %}Appointment Details - HMS{% endblock %}
+{% block page_title %}Appointment Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-calendar-check text-primary me-2"></i>
+                    Appointment Details
+                </h2>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'appointments:appointment_list' %}">Appointments</a></li>
+                        <li class="breadcrumb-item active">Details</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'appointments:appointment_update' appointment.pk %}" class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i> Edit
+                </a>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v me-1"></i> More
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i> Print
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteAppointment()">
+                            <i class="fas fa-trash me-2"></i> Delete
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Status & Time Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                <div class="mb-2">
+                                    <span class="badge bg-{% if appointment.status == 'COMPLETED' %}success{% elif appointment.status == 'CONFIRMED' %}info{% elif appointment.status == 'PENDING' %}warning{% else %}danger{% endif %} fs-6 px-4 py-2">
+                                        <i class="fas fa-{% if appointment.status == 'COMPLETED' %}check-double{% elif appointment.status == 'CONFIRMED' %}check-circle{% elif appointment.status == 'PENDING' %}clock{% else %}times-circle{% endif %} me-2"></i>
+                                        {{ appointment.get_status_display }}
+                                    </span>
+                                </div>
+                                <small class="text-muted">Current Status</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 border-start border-end">
+                                <h3 class="mb-1 text-primary">
+                                    <i class="far fa-calendar me-2"></i>
+                                    {{ appointment.appointment_date|date:"M d, Y" }}
+                                </h3>
+                                <small class="text-muted">Appointment Date</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3">
+                                <h3 class="mb-1 text-success">
+                                    <i class="far fa-clock me-2"></i>
+                                    {{ appointment.appointment_time|time:"g:i A" }}
+                                </h3>
+                                <small class="text-muted">Appointment Time</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointment Info Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Appointment Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="border-start border-primary border-4 ps-3 mb-3">
+                                <small class="text-muted d-block">Appointment ID</small>
+                                <h6 class="mb-0">
+                                    <i class="fas fa-hashtag text-primary me-2"></i>
+                                    {{ appointment.appointment_id }}
+                                </h6>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border-start border-info border-4 ps-3 mb-3">
+                                <small class="text-muted d-block">Appointment Type</small>
+                                <h6 class="mb-0">
+                                    <i class="fas fa-stethoscope text-info me-2"></i>
+                                    {{ appointment.appointment_type }}
+                                </h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 60px; height: 60px; font-size: 24px;">
+                                    <i class="fas fa-user-injured"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Patient</small>
+                                    <h5 class="mb-0">{{ appointment.patient.user.get_full_name }}</h5>
+                                    <small class="text-muted">{{ appointment.patient.patient_id }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 60px; height: 60px; font-size: 24px;">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Doctor</small>
+                                    <h5 class="mb-0">Dr. {{ appointment.doctor.user.get_full_name }}</h5>
+                                    <small class="text-muted">{{ appointment.doctor.specialization }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Symptoms Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-notes-medical me-2"></i>
+                        Symptoms & Complaints
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="bg-light p-3 rounded">
+                        <p class="mb-0" style="white-space: pre-line;">{{ appointment.symptoms }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Notes -->
+            {% if appointment.notes %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-sticky-note me-2"></i>
+                        Additional Notes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="bg-light p-3 rounded">
+                        <p class="mb-0" style="white-space: pre-line;">{{ appointment.notes }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Timeline Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Appointment Timeline
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item mb-3">
+                            <div class="d-flex">
+                                <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 40px; height: 40px; font-size: 16px;">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Appointment Created</h6>
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        {{ appointment.created_at|date:"M d, Y" }} at {{ appointment.created_at|time:"g:i A" }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% if appointment.updated_at != appointment.created_at %}
+                        <div class="timeline-item">
+                            <div class="d-flex">
+                                <div class="bg-warning text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                     style="width: 40px; height: 40px; font-size: 16px;">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">Last Updated</h6>
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar-alt me-1"></i>
+                                        {{ appointment.updated_at|date:"M d, Y" }} at {{ appointment.updated_at|time:"g:i A" }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if appointment.status == 'PENDING' %}
+                        <form method="post" action="{% url 'appointments:appointment_confirm' appointment.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-info w-100">
+                                <i class="fas fa-check-circle me-2"></i> Confirm Appointment
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        {% if appointment.status == 'CONFIRMED' %}
+                        <form method="post" action="{% url 'appointments:appointment_complete' appointment.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check-double me-2"></i> Mark as Completed
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        {% if appointment.status != 'CANCELLED' and appointment.status != 'COMPLETED' %}
+                        <form method="post" action="{% url 'appointments:appointment_cancel' appointment.pk %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Are you sure you want to cancel this appointment?')">
+                                <i class="fas fa-times-circle me-2"></i> Cancel Appointment
+                            </button>
+                        </form>
+                        {% endif %}
+                        
+                        <hr>
+                        
+                        <a href="{% url 'appointments:appointment_update' appointment.pk %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-edit me-2"></i> Edit Appointment
+                        </a>
+                        <button class="btn btn-outline-secondary w-100" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i> Print Details
+                        </button>
+                        <a href="{% url 'appointments:appointment_list' %}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-arrow-left me-2"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Patient Contact Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-address-card me-2"></i>
+                        Patient Contact
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Email</small>
+                        <a href="mailto:{{ appointment.patient.user.email }}" class="text-decoration-none">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            {{ appointment.patient.user.email }}
+                        </a>
+                    </div>
+                    {% if appointment.patient.phone %}
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Phone</small>
+                        <a href="tel:{{ appointment.patient.phone }}" class="text-decoration-none">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            {{ appointment.patient.phone }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    <div class="mb-0">
+                        <small class="text-muted d-block">Patient ID</small>
+                        <strong>{{ appointment.patient.patient_id }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctor Contact Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-user-md me-2"></i>
+                        Doctor Information
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Doctor Name</small>
+                        <strong>Dr. {{ appointment.doctor.user.get_full_name }}</strong>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Specialization</small>
+                        <span class="badge bg-primary">{{ appointment.doctor.specialization }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">Email</small>
+                        <a href="mailto:{{ appointment.doctor.user.email }}" class="text-decoration-none">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            {{ appointment.doctor.user.email }}
+                        </a>
+                    </div>
+                    {% if appointment.doctor.phone %}
+                    <div class="mb-0">
+                        <small class="text-muted d-block">Phone</small>
+                        <a href="tel:{{ appointment.doctor.phone }}" class="text-decoration-none">
+                            <i class="fas fa-phone text-success me-2"></i>
+                            {{ appointment.doctor.phone }}
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reminder Card -->
+            <div class="card shadow-sm border-warning">
+                <div class="card-body bg-light">
+                    <h6 class="text-warning mb-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Important Reminders
+                    </h6>
+                    <ul class="small mb-0">
+                        <li class="mb-2">Please arrive 10 minutes before the scheduled time</li>
+                        <li class="mb-2">Bring your medical records and insurance card</li>
+                        <li class="mb-2">If you need to cancel, please notify us at least 24 hours in advance</li>
+                        <li class="mb-0">For emergencies, call our helpline immediately</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteAppointment() {
+    if (confirm('Are you sure you want to delete this appointment? This action cannot be undone.')) {
+        window.location.href = '{% url "appointments:appointment_delete" appointment.pk %}';
+    }
+}
+</script>
+
+<style>
+.timeline-item {
+    position: relative;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+@media print {
+    .btn, .card-header, nav, .col-lg-4, .dropdown {
+        display: none !important;
+    }
+    
+    .col-lg-8 {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_update %}Update{% else %}Book{% endif %} Appointment - HMS{% endblock %}
+{% block page_title %}{% if is_update %}Update{% else %}Book New{% endif %} Appointment{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <h2><i class="fas fa-calendar-plus text-primary me-2"></i>{% if is_update %}Update Appointment{% else %}Book New Appointment{% endif %}</h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'appointments:appointment_list' %}">Appointments</a></li>
+                <li class="breadcrumb-item active">{% if is_update %}Update{% else %}Book{% endif %}</li>
+            </ol>
+        </nav>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        Appointment Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {% if not is_update %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Please fill in all required fields to book an appointment
+                        </div>
+                        {% endif %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Select Patient <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <select name="patient" id="patientSelect" class="form-select" required {% if is_update %}disabled{% endif %}>
+                                        <option value="">-- Select Patient --</option>
+                                        {% for patient in patients %}
+                                        <option value="{{ patient.pk }}" 
+                                                {% if is_update and appointment.patient.pk == patient.pk %}selected
+                                                {% elif selected_patient and selected_patient == patient.pk|stringformat:"s" %}selected
+                                                {% elif not is_update and not selected_patient and forloop.first %}selected{% endif %}>
+                                            {{ patient.patient_id }} - {{ patient.user.get_full_name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if not is_update %}
+                                    <a href="{% url 'patients:patient_create' %}" class="btn btn-success" target="_blank" title="Add New Patient">
+                                        <i class="fas fa-plus"></i> New Patient
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">Select the patient for this appointment</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Select Doctor <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <select name="doctor" id="doctorSelect" class="form-select" required {% if is_update %}disabled{% endif %}>
+                                        <option value="">-- Select Doctor --</option>
+                                        {% for doctor in doctors %}
+                                        <option value="{{ doctor.pk }}"
+                                                {% if is_update and appointment.doctor.pk == doctor.pk %}selected
+                                                {% elif selected_doctor and selected_doctor == doctor.pk|stringformat:"s" %}selected
+                                                {% elif not is_update and not selected_doctor and forloop.first %}selected{% endif %}>
+                                            Dr. {{ doctor.user.get_full_name }} - {{ doctor.specialization }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    {% if not is_update %}
+                                    <a href="{% url 'doctors:doctor_create' %}" class="btn btn-primary" target="_blank" title="Add New Doctor">
+                                        <i class="fas fa-plus"></i> New Doctor
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">Select the attending doctor</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Appointment Date <span class="text-danger">*</span></label>
+                                <input type="date" name="appointment_date" class="form-control" 
+                                       value="{% if is_update %}{{ appointment.appointment_date|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}"
+                                       min="{% now 'Y-m-d' %}"
+                                       required>
+                                <small class="text-muted">Select appointment date</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Appointment Time <span class="text-danger">*</span></label>
+                                <input type="time" name="appointment_time" class="form-control" 
+                                       value="{% if is_update %}{{ appointment.appointment_time|time:'H:i' }}{% endif %}"
+                                       required>
+                                <small class="text-muted">Select appointment time</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Appointment Type <span class="text-danger">*</span></label>
+                            <select name="appointment_type" class="form-select" required>
+                                <option value="">-- Select Type --</option>
+                                <option value="Consultation" {% if is_update and appointment.appointment_type == 'Consultation' %}selected{% elif not is_update %}selected{% endif %}>Consultation</option>
+                                <option value="Follow-up" {% if is_update and appointment.appointment_type == 'Follow-up' %}selected{% endif %}>Follow-up</option>
+                                <option value="Check-up" {% if is_update and appointment.appointment_type == 'Check-up' %}selected{% endif %}>Check-up</option>
+                                <option value="Emergency" {% if is_update and appointment.appointment_type == 'Emergency' %}selected{% endif %}>Emergency</option>
+                                <option value="Dental" {% if is_update and appointment.appointment_type == 'Dental' %}selected{% endif %}>Dental</option>
+                                <option value="Laboratory" {% if is_update and appointment.appointment_type == 'Laboratory' %}selected{% endif %}>Laboratory</option>
+                            </select>
+                            <small class="text-muted">Select the type of appointment</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Symptoms <span class="text-danger">*</span></label>
+                            <textarea name="symptoms" class="form-control" rows="4" 
+                                      placeholder="Describe the patient's symptoms..." required>{% if is_update %}{{ appointment.symptoms }}{% endif %}</textarea>
+                            <small class="text-muted">Describe the main symptoms or complaints</small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Additional Notes</label>
+                            <textarea name="notes" class="form-control" rows="3" 
+                                      placeholder="Any additional information...">{% if is_update %}{{ appointment.notes }}{% endif %}</textarea>
+                            <small class="text-muted">Any additional information or special instructions</small>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-save me-1"></i>
+                                {% if is_update %}Update Appointment{% else %}Book Appointment{% endif %}
+                            </button>
+                            <a href="{% url 'appointments:appointment_list' %}" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-times me-1"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Quick Info Card -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Appointment Guidelines
+                    </h6>
+                </div>
+                <div class="card-body bg-light">
+                    <ul class="mb-0">
+                        <li class="mb-2">Regular consultations: 9:00 AM - 5:00 PM</li>
+                        <li class="mb-2">Emergency appointments: Available 24/7</li>
+                        <li class="mb-2">Please arrive 10 minutes before scheduled time</li>
+                        <li class="mb-0">Bring any previous medical records if available</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const patientId = urlParams.get('patient');
+    const doctorId = urlParams.get('doctor');
+    
+    // Auto-select patient if provided in URL
+    if (patientId) {
+        const patientSelect = document.getElementById('patientSelect');
+        patientSelect.value = patientId;
+    }
+    
+    // Auto-select doctor if provided in URL
+    if (doctorId) {
+        const doctorSelect = document.getElementById('doctorSelect');
+        doctorSelect.value = doctorId;
+    }
+    
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const patient = document.querySelector('[name="patient"]').value;
+        const doctor = document.querySelector('[name="doctor"]').value;
+        const date = document.querySelector('[name="appointment_date"]').value;
+        const time = document.querySelector('[name="appointment_time"]').value;
+        const type = document.querySelector('[name="appointment_type"]').value;
+        const symptoms = document.querySelector('[name="symptoms"]').value.trim();
+        
+        if (!patient || !doctor || !date || !time || !type || !symptoms) {
+            e.preventDefault();
+            alert('Please fill in all required fields!');
+            return false;
+        }
+        
+        // Confirm submission
+        if (!confirm('Are you sure you want to {% if is_update %}update{% else %}book{% endif %} this appointment?')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+</script>
+
+<style>
+textarea {
+    resize: vertical;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+@media print {
+    .btn, nav, .card-header, .alert { 
+        display: none !important; 
+    }
+}
+</style>
+{% endblock %}

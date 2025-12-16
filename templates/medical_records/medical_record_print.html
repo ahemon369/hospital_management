@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Record - {{ record.patient.user.get_full_name }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .print-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Modern Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hospital-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 50px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .hospital-icon {
+            font-size: 28px;
+        }
+
+        .hospital-name {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .hospital-tagline {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .document-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .document-title {
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .record-id {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Content Area */
+        .content {
+            padding: 50px;
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+            min-width: 130px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        /* Vital Signs */
+        .vitals-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .vitals-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .vital-card {
+            background: white;
+            border: 2px solid #fee2e2;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vital-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .vital-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .vital-label {
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .vital-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ef4444;
+            letter-spacing: -0.5px;
+        }
+
+        /* Medical Sections */
+        .medical-section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .medical-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .medical-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        .medical-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .medical-content {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #334155;
+            white-space: pre-line;
+        }
+
+        .diagnosis-content {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            font-weight: 500;
+        }
+
+        .prescription-content {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-left: 4px solid #10b981;
+            font-weight: 500;
+        }
+
+        /* Signature Section */
+        .signature-section {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 2px dashed #e2e8f0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 60px;
+        }
+
+        .signature-box {
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 2px solid #1e293b;
+            margin-top: 80px;
+            padding-top: 15px;
+        }
+
+        .signature-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .signature-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 30px 50px;
+            margin-top: 40px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer-content {
+            text-align: center;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .footer-warning {
+            font-size: 11px;
+            color: #94a3b8;
+            font-style: italic;
+        }
+
+        .print-timestamp {
+            text-align: center;
+            padding: 20px;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* Print Button */
+        .print-actions {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .action-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .action-btn.print-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-value {
+            color: #cbd5e1;
+            font-style: italic;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .print-container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .info-card,
+            .vital-card,
+            .medical-content {
+                break-inside: avoid;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .info-cards,
+            .vitals-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .signature-section {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .content {
+                padding: 30px;
+            }
+
+            .header {
+                padding: 30px;
+            }
+
+            .footer {
+                padding: 20px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Action Buttons -->
+    <div class="print-actions no-print">
+        <button class="action-btn" onclick="window.close()">
+            <i class="fas fa-times"></i> Close
+        </button>
+        <button class="action-btn print-btn" onclick="window.print()">
+            <i class="fas fa-print"></i> Print Record
+        </button>
+    </div>
+
+    <div class="print-container">
+        <!-- Modern Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="hospital-badge">
+                    <i class="fas fa-hospital hospital-icon"></i>
+                    <span style="font-weight: 600;">HMS Portal</span>
+                </div>
+                <div class="hospital-name">Hospital Management System</div>
+                <div class="hospital-tagline">Excellence in Healthcare | Professional Medical Documentation</div>
+                
+                <div class="document-header">
+                    <div class="document-title">Medical Record</div>
+                    <div class="record-id">
+                        <i class="fas fa-barcode"></i> REC-{{ record.id|stringformat:"05d" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Patient & Doctor Info Cards -->
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-user-injured"></i>
+                        </div>
+                        <div class="card-title">Patient Information</div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Full Name</span>
+                        <span class="info-value">{{ record.patient.user.get_full_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Patient ID</span>
+                        <span class="info-value">{{ record.patient.patient_id }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email Address</span>
+                        <span class="info-value">{{ record.patient.user.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Phone Number</span>
+                        <span class="info-value">{{ record.patient.phone|default:"Not provided" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date of Birth</span>
+                        <span class="info-value">{{ record.patient.date_of_birth|date:"M d, Y"|default:"Not provided" }}</span>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="card-title">Doctor Information</div>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Doctor Name</span>
+                        <span class="info-value">Dr. {{ record.doctor.user.get_full_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Specialization</span>
+                        <span class="info-value">{{ record.doctor.specialization }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Visit Date</span>
+                        <span class="info-value">{{ record.visit_date|date:"F d, Y" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Visit Type</span>
+                        <span class="info-value">{{ record.get_visit_type_display }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Record Created</span>
+                        <span class="info-value">{{ record.created_at|date:"M d, Y g:i A" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vital Signs -->
+            <div class="vitals-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="section-title">Vital Signs</div>
+                </div>
+                <div class="vitals-grid">
+                    <div class="vital-card">
+                        <div class="vital-icon">🌡️</div>
+                        <div class="vital-label">Temperature</div>
+                        <div class="vital-value">
+                            {% if record.temperature %}
+                                {{ record.temperature }}°F
+                            {% else %}
+                                <span class="empty-value">-</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="vital-card">
+                        <div class="vital-icon">💓</div>
+                        <div class="vital-label">Blood Pressure</div>
+                        <div class="vital-value">
+                            {% if record.blood_pressure %}
+                                {{ record.blood_pressure }}
+                            {% else %}
+                                <span class="empty-value">-</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="vital-card">
+                        <div class="vital-icon">❤️</div>
+                        <div class="vital-label">Heart Rate</div>
+                        <div class="vital-value">
+                            {% if record.heart_rate %}
+                                {{ record.heart_rate }}
+                            {% else %}
+                                <span class="empty-value">-</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="vital-card">
+                        <div class="vital-icon">⚖️</div>
+                        <div class="vital-label">Weight</div>
+                        <div class="vital-value">
+                            {% if record.weight %}
+                                {{ record.weight }}
+                            {% else %}
+                                <span class="empty-value">-</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chief Complaint -->
+            <div class="medical-section">
+                <div class="medical-header">
+                    <div class="medical-icon">
+                        <i class="fas fa-comment-medical"></i>
+                    </div>
+                    <div class="medical-title">Chief Complaint</div>
+                </div>
+                <div class="medical-content">{{ record.chief_complaint }}</div>
+            </div>
+
+            <!-- Symptoms -->
+            {% if record.symptoms %}
+            <div class="medical-section">
+                <div class="medical-header">
+                    <div class="medical-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="medical-title">Symptoms</div>
+                </div>
+                <div class="medical-content">{{ record.symptoms }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Diagnosis -->
+            <div class="medical-section">
+                <div class="medical-header">
+                    <div class="medical-icon">
+                        <i class="fas fa-diagnoses"></i>
+                    </div>
+                    <div class="medical-title">Diagnosis</div>
+                </div>
+                <div class="medical-content diagnosis-content">{{ record.diagnosis }}</div>
+            </div>
+
+            <!-- Prescription -->
+            {% if record.prescription %}
+            <div class="medical-section">
+                <div class="medical-header">
+                    <div class="medical-icon">
+                        <i class="fas fa-prescription"></i>
+                    </div>
+                    <div class="medical-title">Prescription</div>
+                </div>
+                <div class="medical-content prescription-content">{{ record.prescription }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Lab Tests -->
+            {% if record.lab_tests %}
+            <div class="medical-section">
+                <div class="medical-header">
+                    <div class="medical-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <div class="medical-title">Lab Tests Recommended</div>
+                </div>
+                <div class="medical-content">{{ record.lab_tests }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Additional Notes -->
+            {% if record.notes %}
+            <div class="medical-section">
+                <div class="medical-header">
+                    <div class="medical-icon">
+                        <i class="fas fa-sticky-note"></i>
+                    </div>
+                    <div class="medical-title">Additional Notes</div>
+                </div>
+                <div class="medical-content">{{ record.notes }}</div>
+            </div>
+            {% endif %}
+
+            <!-- Signature Section -->
+            <div class="signature-section">
+                <div class="signature-box">
+                    <div class="signature-line">
+                        <div class="signature-name">{{ record.patient.user.get_full_name }}</div>
+                        <div class="signature-label">Patient Signature</div>
+                    </div>
+                </div>
+                <div class="signature-box">
+                    <div class="signature-line">
+                        <div class="signature-name">Dr. {{ record.doctor.user.get_full_name }}</div>
+                        <div class="signature-label">Doctor Signature</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-content">
+                <p class="footer-text"><strong>📋 Important Notice:</strong> This is a computer-generated medical record. Please keep it for your records.</p>
+                <p class="footer-warning">For any queries or concerns, please contact the hospital administration. This document is confidential and intended for medical use only.</p>
+            </div>
+        </div>
+
+        <div class="print-timestamp">
+            <i class="fas fa-clock"></i> Document generated on: <script>document.write(new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' }))</script>
+        </div>
+    </div>
+</body>
+</html>

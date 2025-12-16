@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Performance Report - HMS{% endblock %}
+{% block page_title %}Doctor Performance Report{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-user-md text-info me-2"></i>
+                    Doctor Performance Report
+                </h2>
+                <p class="text-muted mb-0">Track doctor performance and appointment statistics</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'reports:reports_home' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back
+                </a>
+                <a href="{% url 'reports:export_report_pdf' 'doctor_performance' %}" class="btn btn-danger">
+                    <i class="fas fa-file-pdf me-1"></i> Export PDF
+                </a>
+                <a href="{% url 'reports:export_report_excel' 'doctor_performance' %}" class="btn btn-success">
+                    <i class="fas fa-file-excel me-1"></i> Export Excel
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Date Range Selector -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Start Date</label>
+                    <input type="date" name="start_date" class="form-control" value="{{ start_date|date:'Y-m-d' }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">End Date</label>
+                    <input type="date" name="end_date" class="form-control" value="{{ end_date|date:'Y-m-d' }}" max="{% now 'Y-m-d' %}">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i> Generate Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Overall Performance Summary -->
+    <div class="card mb-4 border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <div class="card-body text-white py-4">
+            <h3 class="mb-3"><i class="fas fa-chart-line me-2"></i>Overall Performance Summary</h3>
+            <p class="opacity-75 mb-3">Period: {{ start_date|date:"M d, Y" }} to {{ end_date|date:"M d, Y" }}</p>
+            <div class="row">
+                <div class="col-md-3 text-center">
+                    <h2 class="display-4">{{ active_doctors }}</h2>
+                    <p class="mb-0">Active Doctors</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h2 class="display-4">{{ total_appointments }}</h2>
+                    <p class="mb-0">Total Appointments</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h2 class="display-4">{{ total_completed }}</h2>
+                    <p class="mb-0">Completed</p>
+                </div>
+                <div class="col-md-3 text-center">
+                    <h2 class="display-4">{{ avg_completion_rate|floatformat:0 }}%</h2>
+                    <p class="mb-0">Avg Completion Rate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Performing Doctors -->
+    {% if top_doctors %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Top Performing Doctors</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for doctor_stat in top_doctors %}
+                <div class="col-md-4 mb-3">
+                    <div class="card border-{% if forloop.first %}warning{% elif forloop.counter == 2 %}secondary{% else %}info{% endif %}" style="border-width: 3px !important;">
+                        <div class="card-body text-center">
+                            <i class="fas fa-medal fa-3x text-{% if forloop.first %}warning{% elif forloop.counter == 2 %}secondary{% else %}info{% endif %} mb-3"></i>
+                            <h4>Dr. {{ doctor_stat.doctor.user.get_full_name }}</h4>
+                            <p class="text-muted mb-2">{{ doctor_stat.doctor.specialization }}</p>
+                            <h3 class="text-{% if forloop.first %}warning{% elif forloop.counter == 2 %}secondary{% else %}info{% endif %} mb-0">
+                                {{ doctor_stat.completion_rate|floatformat:0 }}%
+                            </h3>
+                            <small class="text-muted">Completion Rate</small>
+                            <hr>
+                            <div class="d-flex justify-content-around mt-3">
+                                <div>
+                                    <h5 class="mb-0">{{ doctor_stat.total_appointments }}</h5>
+                                    <small>Total</small>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">{{ doctor_stat.completed }}</h5>
+                                    <small>Completed</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Detailed Doctor Statistics -->
+    {% if doctor_stats %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-table me-2"></i>Detailed Doctor Statistics</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Specialization</th>
+                            <th>Total</th>
+                            <th>Completed</th>
+                            <th>Pending</th>
+                            <th>Confirmed</th>
+                            <th>Cancelled</th>
+                            <th>Completion Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in doctor_stats %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                                        {{ stat.doctor.user.first_name.0 }}{{ stat.doctor.user.last_name.0 }}
+                                    </div>
+                                    <strong>Dr. {{ stat.doctor.user.get_full_name }}</strong>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-info">{{ stat.doctor.specialization }}</span></td>
+                            <td><strong>{{ stat.total_appointments }}</strong></td>
+                            <td><span class="badge bg-success">{{ stat.completed }}</span></td>
+                            <td><span class="badge bg-warning">{{ stat.pending }}</span></td>
+                            <td><span class="badge bg-info">{{ stat.confirmed }}</span></td>
+                            <td><span class="badge bg-danger">{{ stat.cancelled }}</span></td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress flex-grow-1 me-2" style="height: 20px; min-width: 100px;">
+                                        <div class="progress-bar bg-{% if stat.completion_rate >= 90 %}success{% elif stat.completion_rate >= 75 %}info{% elif stat.completion_rate >= 50 %}warning{% else %}danger{% endif %}" 
+                                             style="width: {{ stat.completion_rate }}%">
+                                            {{ stat.completion_rate }}%
+                                        </div>
+                                    </div>
+                                    <strong>{{ stat.completion_rate }}%</strong>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-user-md fa-5x text-muted mb-4"></i>
+            <h4 class="text-muted mb-3">No Doctor Statistics Available</h4>
+            <p class="text-muted">No appointments found for the selected period</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Performance Analysis -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Performance Analysis</h5>
+        </div>
+        <div class="card-body">
+            {% if total_appointments > 0 %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Analysis:</strong> 
+                    {% if avg_completion_rate >= 85 %}
+                        Excellent overall performance! Average completion rate is {{ avg_completion_rate|floatformat:1 }}%.
+                    {% elif avg_completion_rate >= 70 %}
+                        Good performance with room for improvement. Average completion rate is {{ avg_completion_rate|floatformat:1 }}%.
+                    {% else %}
+                        Performance needs attention. Average completion rate is {{ avg_completion_rate|floatformat:1 }}%.
+                    {% endif %}
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h6 class="mb-3"><i class="fas fa-check-circle text-success me-2"></i>Key Insights</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                {{ active_doctors }} doctors are actively serving patients
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                {{ total_completed }} out of {{ total_appointments }} appointments completed
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>
+                                Average completion rate: {{ avg_completion_rate|floatformat:1 }}%
+                            </li>
+                            {% if top_doctors.0 %}
+                            <li class="list-group-item">
+                                <i class="fas fa-trophy text-warning me-2"></i>
+                                Top performer: Dr. {{ top_doctors.0.doctor.user.get_full_name }} ({{ top_doctors.0.completion_rate }}%)
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="mb-3"><i class="fas fa-lightbulb text-warning me-2"></i>Recommendations</h6>
+                        <ul class="list-group list-group-flush">
+                            {% if avg_completion_rate < 70 %}
+                            <li class="list-group-item">
+                                <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                                Review and improve appointment completion processes
+                            </li>
+                            {% endif %}
+                            <li class="list-group-item">
+                                <i class="fas fa-arrow-right text-info me-2"></i>
+                                Implement patient reminder system
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-arrow-right text-info me-2"></i>
+                                Provide time management training
+                            </li>
+                            <li class="list-group-item">
+                                <i class="fas fa-arrow-right text-info me-2"></i>
+                                Collect and analyze patient feedback
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    No appointments data available for the selected period.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .btn-group, .card-header, nav, form {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}
