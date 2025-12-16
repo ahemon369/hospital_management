@@ -656,4 +656,4 @@ def export_report_csv(request, report_type):
                 'In Stock' if medicine.stock_quantity > 0 else 'Out of Stock'
             ])
     
-    return responseh
+    return response
