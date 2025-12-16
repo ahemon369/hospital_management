@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Employee - HMS{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Edit Employee{% else %}Add New Employee{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Back Button -->
+            <div class="mb-3">
+                <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Employee List
+                </a>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        {% if form.instance.pk %}Edit Employee Information{% else %}New Employee Registration{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Personal Information Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-user text-primary me-2"></i>Personal Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_employee_id" class="form-label">Employee ID *</label>
+                                    <input type="text" name="employee_id" class="form-control" id="id_employee_id" 
+                                           value="{{ form.employee_id.value|default:'' }}" required>
+                                    {% if form.employee_id.errors %}
+                                        <div class="text-danger small mt-1">{{ form.employee_id.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_first_name" class="form-label">First Name *</label>
+                                    <input type="text" name="first_name" class="form-control" id="id_first_name" 
+                                           value="{{ form.first_name.value|default:'' }}" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_last_name" class="form-label">Last Name *</label>
+                                    <input type="text" name="last_name" class="form-control" id="id_last_name" 
+                                           value="{{ form.last_name.value|default:'' }}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_email" class="form-label">Email *</label>
+                                    <input type="email" name="email" class="form-control" id="id_email" 
+                                           value="{{ form.email.value|default:'' }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_phone" class="form-label">Phone Number *</label>
+                                    <input type="text" name="phone" class="form-control" id="id_phone" 
+                                           value="{{ form.phone.value|default:'' }}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_date_of_birth" class="form-label">Date of Birth</label>
+                                    <input type="date" name="date_of_birth" class="form-control" id="id_date_of_birth" 
+                                           value="{{ form.date_of_birth.value|date:'Y-m-d'|default:'' }}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_gender" class="form-label">Gender</label>
+                                    <select name="gender" class="form-select" id="id_gender">
+                                        <option value="">Select Gender</option>
+                                        <option value="male" {% if form.gender.value == 'male' %}selected{% endif %}>Male</option>
+                                        <option value="female" {% if form.gender.value == 'female' %}selected{% endif %}>Female</option>
+                                        <option value="other" {% if form.gender.value == 'other' %}selected{% endif %}>Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_blood_group" class="form-label">Blood Group</label>
+                                    <select name="blood_group" class="form-select" id="id_blood_group">
+                                        <option value="">Select Blood Group</option>
+                                        <option value="A+" {% if form.blood_group.value == 'A+' %}selected{% endif %}>A+</option>
+                                        <option value="A-" {% if form.blood_group.value == 'A-' %}selected{% endif %}>A-</option>
+                                        <option value="B+" {% if form.blood_group.value == 'B+' %}selected{% endif %}>B+</option>
+                                        <option value="B-" {% if form.blood_group.value == 'B-' %}selected{% endif %}>B-</option>
+                                        <option value="O+" {% if form.blood_group.value == 'O+' %}selected{% endif %}>O+</option>
+                                        <option value="O-" {% if form.blood_group.value == 'O-' %}selected{% endif %}>O-</option>
+                                        <option value="AB+" {% if form.blood_group.value == 'AB+' %}selected{% endif %}>AB+</option>
+                                        <option value="AB-" {% if form.blood_group.value == 'AB-' %}selected{% endif %}>AB-</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_address" class="form-label">Address</label>
+                                <textarea name="address" class="form-control" id="id_address" rows="2">{{ form.address.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Employment Information Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-briefcase text-success me-2"></i>Employment Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_department" class="form-label">Department *</label>
+                                    <select name="department" class="form-select" id="id_department" required>
+                                        <option value="">Select Department</option>
+                                        <option value="administration" {% if form.department.value == 'administration' %}selected{% endif %}>Administration</option>
+                                        <option value="medical" {% if form.department.value == 'medical' %}selected{% endif %}>Medical</option>
+                                        <option value="nursing" {% if form.department.value == 'nursing' %}selected{% endif %}>Nursing</option>
+                                        <option value="pharmacy" {% if form.department.value == 'pharmacy' %}selected{% endif %}>Pharmacy</option>
+                                        <option value="laboratory" {% if form.department.value == 'laboratory' %}selected{% endif %}>Laboratory</option>
+                                        <option value="reception" {% if form.department.value == 'reception' %}selected{% endif %}>Reception</option>
+                                        <option value="maintenance" {% if form.department.value == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                                        <option value="security" {% if form.department.value == 'security' %}selected{% endif %}>Security</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_position" class="form-label">Position *</label>
+                                    <input type="text" name="position" class="form-control" id="id_position" 
+                                           value="{{ form.position.value|default:'' }}" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_date_joined" class="form-label">Date Joined *</label>
+                                    <input type="date" name="date_joined" class="form-control" id="id_date_joined" 
+                                           value="{{ form.date_joined.value|date:'Y-m-d'|default:'' }}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_employment_type" class="form-label">Employment Type</label>
+                                    <select name="employment_type" class="form-select" id="id_employment_type">
+                                        <option value="full_time" {% if form.employment_type.value == 'full_time' %}selected{% endif %}>Full Time</option>
+                                        <option value="part_time" {% if form.employment_type.value == 'part_time' %}selected{% endif %}>Part Time</option>
+                                        <option value="contract" {% if form.employment_type.value == 'contract' %}selected{% endif %}>Contract</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_status" class="form-label">Status</label>
+                                    <select name="status" class="form-select" id="id_status">
+                                        <option value="active" {% if form.status.value == 'active' %}selected{% endif %}>Active</option>
+                                        <option value="inactive" {% if form.status.value == 'inactive' %}selected{% endif %}>Inactive</option>
+                                        <option value="on_leave" {% if form.status.value == 'on_leave' %}selected{% endif %}>On Leave</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-phone-alt text-danger me-2"></i>Emergency Contact
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_emergency_contact_name" class="form-label">Contact Name</label>
+                                    <input type="text" name="emergency_contact_name" class="form-control" 
+                                           id="id_emergency_contact_name" value="{{ form.emergency_contact_name.value|default:'' }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_emergency_contact_phone" class="form-label">Contact Phone</label>
+                                    <input type="text" name="emergency_contact_phone" class="form-control" 
+                                           id="id_emergency_contact_phone" value="{{ form.emergency_contact_phone.value|default:'' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if form.instance.pk %}Update Employee{% else %}Add Employee{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

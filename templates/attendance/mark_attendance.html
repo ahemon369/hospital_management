@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Attendance - HMS{% endblock %}
+{% block page_title %}Mark Attendance{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'attendance:attendance_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Attendance
+        </a>
+    </div>
+
+    <!-- Date Selector Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-calendar-day me-2"></i>Select Date
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-end">
+                <div class="col-md-4 mb-3">
+                    <label for="attendance_date" class="form-label">Date</label>
+                    <input type="date" class="form-control form-control-lg" id="attendance_date" 
+                           value="{{ today|date:'Y-m-d' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="department_filter" class="form-label">Filter by Department</label>
+                    <select class="form-select form-select-lg" id="department_filter">
+                        <option value="">All Departments</option>
+                        <option value="medical">Medical</option>
+                        <option value="nursing">Nursing</option>
+                        <option value="pharmacy">Pharmacy</option>
+                        <option value="laboratory">Laboratory</option>
+                        <option value="administration">Administration</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <button class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-search me-2"></i>Load Employees
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mark Attendance Form -->
+    <form method="post">
+        {% csrf_token %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-users-cog me-2"></i>Employee Attendance List
+                </h5>
+                <span class="badge bg-light text-dark">Total: 52 Employees</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 5%">
+                                    <input type="checkbox" class="form-check-input" id="selectAll">
+                                </th>
+                                <th style="width: 15%">Employee ID</th>
+                                <th style="width: 25%">Name</th>
+                                <th style="width: 15%">Department</th>
+                                <th style="width: 12%">Check In</th>
+                                <th style="width: 12%">Check Out</th>
+                                <th style="width: 16%">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Sample Row 1 -->
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input" name="attendance[]" value="1" checked>
+                                </td>
+                                <td><strong class="text-primary">EMP001</strong></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-success text-white me-2" style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                                            JD
+                                        </div>
+                                        Dr. John Doe
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-info">Cardiology</span></td>
+                                <td>
+                                    <input type="time" class="form-control form-control-sm" name="check_in_1" value="08:30">
+                                </td>
+                                <td>
+                                    <input type="time" class="form-control form-control-sm" name="check_out_1" value="17:30">
+                                </td>
+                                <td>
+                                    <select class="form-select form-select-sm" name="status_1">
+                                        <option value="present" selected>Present</option>
+                                        <option value="absent">Absent</option>
+                                        <option value="late">Late</option>
+                                        <option value="half_day">Half Day</option>
+                                        <option value="on_leave">On Leave</option>
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <!-- Sample Row 2 -->
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input" name="attendance[]" value="2" checked>
+                                </td>
+                                <td><strong class="text-primary">EMP002</strong></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-primary text-white me-2" style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                                            SS
+                                        </div>
+                                        Sarah Smith
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-info">Nursing</span></td>
+                                <td>
+                                    <input type="time" class="form-control form-control-sm" name="check_in_2" value="08:45">
+                                </td>
+                                <td>
+                                    <input type="time" class="form-control form-control-sm" name="check_out_2">
+                                </td>
+                                <td>
+                                    <select class="form-select form-select-sm" name="status_2">
+                                        <option value="present" selected>Present</option>
+                                        <option value="absent">Absent</option>
+                                        <option value="late">Late</option>
+                                        <option value="half_day">Half Day</option>
+                                        <option value="on_leave">On Leave</option>
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <!-- Sample Row 3 -->
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input" name="attendance[]" value="3">
+                                </td>
+                                <td><strong class="text-primary">EMP003</strong></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle bg-danger text-white me-2" style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                                            MJ
+                                        </div>
+                                        Michael Johnson
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-info">Pharmacy</span></td>
+                                <td>
+                                    <input type="time" class="form-control form-control-sm" name="check_in_3">
+                                </td>
+                                <td>
+                                    <input type="time" class="form-control form-control-sm" name="check_out_3">
+                                </td>
+                                <td>
+                                    <select class="form-select form-select-sm" name="status_3">
+                                        <option value="present">Present</option>
+                                        <option value="absent" selected>Absent</option>
+                                        <option value="late">Late</option>
+                                        <option value="half_day">Half Day</option>
+                                        <option value="on_leave">On Leave</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Select employees and mark their attendance status
+                        </span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-2"></i>Save Attendance
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Select All Checkbox
+document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('input[name="attendance[]"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+});
+</script>
+{% endblock %}

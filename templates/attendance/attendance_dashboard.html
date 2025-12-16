@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Dashboard - HMS{% endblock %}
+{% block page_title %}Attendance & On Duty Tracker{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">PRESENT TODAY</p>
+                            <h2 class="mb-0">48</h2>
+                            <small class="opacity-75">Out of 52 employees</small>
+                        </div>
+                        <i class="fas fa-user-check fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">ABSENT TODAY</p>
+                            <h2 class="mb-0">4</h2>
+                            <small class="opacity-75">Not present</small>
+                        </div>
+                        <i class="fas fa-user-times fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">ON DUTY NOW</p>
+                            <h2 class="mb-0">35</h2>
+                            <small class="opacity-75">Currently working</small>
+                        </div>
+                        <i class="fas fa-clock fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">PENDING LEAVES</p>
+                            <h2 class="mb-0">7</h2>
+                            <small class="opacity-75">Awaiting approval</small>
+                        </div>
+                        <i class="fas fa-calendar-times fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <a href="{% url 'attendance:mark_attendance' %}" class="btn btn-outline-success w-100 py-3">
+                        <i class="fas fa-check-circle fa-2x mb-2 d-block"></i>
+                        <strong>Mark Attendance</strong>
+                        <div class="small text-muted">Record daily attendance</div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'attendance:on_duty_list' %}" class="btn btn-outline-primary w-100 py-3">
+                        <i class="fas fa-user-clock fa-2x mb-2 d-block"></i>
+                        <strong>On Duty List</strong>
+                        <div class="small text-muted">View duty schedule</div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'attendance:leave_list' %}" class="btn btn-outline-warning w-100 py-3">
+                        <i class="fas fa-calendar-alt fa-2x mb-2 d-block"></i>
+                        <strong>Leave Requests</strong>
+                        <div class="small text-muted">Manage leave applications</div>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="{% url 'attendance:attendance_report' %}" class="btn btn-outline-info w-100 py-3">
+                        <i class="fas fa-chart-bar fa-2x mb-2 d-block"></i>
+                        <strong>Reports</strong>
+                        <div class="small text-muted">View attendance reports</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Today's Attendance -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-calendar-day text-primary me-2"></i>Today's Attendance</h5>
+                    <span class="badge bg-primary">December 17, 2025</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Department</th>
+                                    <th>Check In</th>
+                                    <th>Check Out</th>
+                                    <th>Status</th>
+                                    <th>Working Hours</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-success text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
+                                                JD
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">Dr. John Doe</div>
+                                                <small class="text-muted">EMP001</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-info">Cardiology</span></td>
+                                    <td><i class="fas fa-clock text-success me-1"></i>08:30 AM</td>
+                                    <td><i class="fas fa-clock text-danger me-1"></i>05:30 PM</td>
+                                    <td><span class="badge bg-success">Present</span></td>
+                                    <td><strong>9h 0m</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-primary text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
+                                                SS
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">Sarah Smith</div>
+                                                <small class="text-muted">EMP002</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-info">Nursing</span></td>
+                                    <td><i class="fas fa-clock text-success me-1"></i>08:45 AM</td>
+                                    <td><span class="text-muted">--:--</span></td>
+                                    <td><span class="badge bg-warning">On Duty</span></td>
+                                    <td><strong>7h 30m</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-warning text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
+                                                MJ
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">Michael Johnson</div>
+                                                <small class="text-muted">EMP003</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-info">Pharmacy</span></td>
+                                    <td><i class="fas fa-clock text-success me-1"></i>09:00 AM</td>
+                                    <td><span class="text-muted">--:--</span></td>
+                                    <td><span class="badge bg-warning">On Duty</span></td>
+                                    <td><strong>7h 15m</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-danger text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
+                                                EB
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">Emily Brown</div>
+                                                <small class="text-muted">EMP004</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-info">Reception</span></td>
+                                    <td colspan="3" class="text-center">
+                                        <span class="badge bg-danger">Absent</span>
+                                    </td>
+                                    <td><strong>0h 0m</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-center">
+                    <a href="{% url 'attendance:attendance_dashboard' %}" class="btn btn-sm btn-outline-primary">
+                        View Full Attendance <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="col-lg-4">
+            <!-- On Duty Staff -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-users text-success me-2"></i>Currently On Duty</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold">Night Shift</div>
+                                    <small class="text-muted">12 employees</small>
+                                </div>
+                                <span class="badge bg-success">Active</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold">Emergency</div>
+                                    <small class="text-muted">8 employees</small>
+                                </div>
+                                <span class="badge bg-danger">Critical</span>
+                            </div>
+                        </div>
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold">Day Shift</div>
+                                    <small class="text-muted">15 employees</small>
+                                </div>
+                                <span class="badge bg-primary">Scheduled</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid mt-3">
+                        <a href="{% url 'attendance:shift_list' %}" class="btn btn-outline-primary btn-sm">
+                            Manage Shifts <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Leave Requests -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-circle text-warning me-2"></i>Pending Leaves</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <div class="fw-bold">Dr. Ahmed Khan</div>
+                                    <small class="text-muted">Sick Leave - 2 days</small>
+                                </div>
+                                <span class="badge bg-warning">Pending</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success btn-sm flex-fill">
+                                    <i class="fas fa-check me-1"></i>Approve
+                                </button>
+                                <button class="btn btn-danger btn-sm flex-fill">
+                                    <i class="fas fa-times me-1"></i>Reject
+                                </button>
+                            </div>
+                        </div>
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <div class="fw-bold">Nurse Fatima</div>
+                                    <small class="text-muted">Annual Leave - 5 days</small>
+                                </div>
+                                <span class="badge bg-warning">Pending</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success btn-sm flex-fill">
+                                    <i class="fas fa-check me-1"></i>Approve
+                                </button>
+                                <button class="btn btn-danger btn-sm flex-fill">
+                                    <i class="fas fa-times me-1"></i>Reject
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-grid mt-3">
+                        <a href="{% url 'attendance:leave_list' %}" class="btn btn-outline-warning btn-sm">
+                            View All Requests <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Summary -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie text-info me-2"></i>This Week Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Average Attendance</span>
+                            <strong class="text-success">92%</strong>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-success" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>On Time Arrival</span>
+                            <strong class="text-info">85%</strong>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-info" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Leave Requests</span>
+                            <strong class="text-warning">8%</strong>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-warning" style="width: 8%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+
+{% block title %}Supplier Management - HMS{% endblock %}
+{% block page_title %}Supplier Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">TOTAL SUPPLIERS</p>
+                            <h2 class="mb-0">{{ suppliers.count }}</h2>
+                            <small class="opacity-75">Active suppliers</small>
+                        </div>
+                        <i class="fas fa-truck fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">TOTAL ORDERS</p>
+                            <h2 class="mb-0">156</h2>
+                            <small class="opacity-75">All time orders</small>
+                        </div>
+                        <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">PENDING ORDERS</p>
+                            <h2 class="mb-0">12</h2>
+                            <small class="opacity-75">Awaiting delivery</small>
+                        </div>
+                        <i class="fas fa-clock fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">THIS MONTH</p>
+                            <h2 class="mb-0">৳2.5M</h2>
+                            <small class="opacity-75">Purchase amount</small>
+                        </div>
+                        <i class="fas fa-money-bill-wave fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs for Suppliers and Orders -->
+    <ul class="nav nav-tabs mb-4" id="supplierTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="suppliers-tab" data-bs-toggle="tab" data-bs-target="#suppliers" type="button">
+                <i class="fas fa-truck me-2"></i>Suppliers
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button">
+                <i class="fas fa-shopping-cart me-2"></i>Purchase Orders
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="supplierTabsContent">
+        <!-- Suppliers Tab -->
+        <div class="tab-pane fade show active" id="suppliers" role="tabpanel">
+            <!-- Search and Actions -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0" placeholder="Search suppliers by name, contact, or category...">
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <a href="{% url 'suppliers:supplier_create' %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add New Supplier
+                            </a>
+                            <button class="btn btn-outline-secondary">
+                                <i class="fas fa-filter me-2"></i>Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supplier Cards Grid -->
+            <div class="row">
+                {% if suppliers %}
+                    {% for supplier in suppliers %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm h-100 hover-shadow" style="transition: all 0.3s;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="supplier-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        <i class="fas fa-building fa-lg"></i>
+                                    </div>
+                                    <span class="badge bg-success">Active</span>
+                                </div>
+                                
+                                <h5 class="card-title mb-2">{{ supplier.name }}</h5>
+                                <p class="text-muted small mb-3">{{ supplier.category }}</p>
+                                
+                                <div class="mb-2">
+                                    <i class="fas fa-user text-muted me-2"></i>
+                                    <small>{{ supplier.contact_person }}</small>
+                                </div>
+                                <div class="mb-2">
+                                    <i class="fas fa-phone text-muted me-2"></i>
+                                    <small>{{ supplier.phone }}</small>
+                                </div>
+                                <div class="mb-3">
+                                    <i class="fas fa-envelope text-muted me-2"></i>
+                                    <small>{{ supplier.email }}</small>
+                                </div>
+                                
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'suppliers:supplier_detail' supplier.pk %}" class="btn btn-sm btn-outline-primary flex-fill">
+                                        <i class="fas fa-eye me-1"></i>View
+                                    </a>
+                                    <a href="{% url 'suppliers:supplier_update' supplier.pk %}" class="btn btn-sm btn-outline-warning flex-fill">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center py-5">
+                                <i class="fas fa-truck fa-4x text-muted mb-3"></i>
+                                <h5 class="text-muted">No Suppliers Found</h5>
+                                <p class="text-muted">Start by adding your first supplier</p>
+                                <a href="{% url 'suppliers:supplier_create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Add Supplier
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Purchase Orders Tab -->
+        <div class="tab-pane fade" id="orders" role="tabpanel">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-shopping-cart text-primary me-2"></i>Recent Purchase Orders</h5>
+                    <a href="{% url 'suppliers:purchase_order_create' %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus me-2"></i>New Order
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Supplier</th>
+                                    <th>Order Date</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong class="text-primary">#PO001</strong></td>
+                                    <td>Medical Supplies Ltd.</td>
+                                    <td>Dec 15, 2025</td>
+                                    <td><strong>৳45,000</strong></td>
+                                    <td><span class="badge bg-warning">Pending</span></td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hover-shadow:hover {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}

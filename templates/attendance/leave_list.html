@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}Leave Requests - HMS{% endblock %}
+{% block page_title %}Leave Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'attendance:attendance_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Attendance
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">PENDING REQUESTS</p>
+                            <h2 class="mb-0">7</h2>
+                            <small class="opacity-75">Awaiting approval</small>
+                        </div>
+                        <i class="fas fa-hourglass-half fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">APPROVED</p>
+                            <h2 class="mb-0">15</h2>
+                            <small class="opacity-75">This month</small>
+                        </div>
+                        <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">REJECTED</p>
+                            <h2 class="mb-0">2</h2>
+                            <small class="opacity-75">This month</small>
+                        </div>
+                        <i class="fas fa-times-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">ON LEAVE TODAY</p>
+                            <h2 class="mb-0">4</h2>
+                            <small class="opacity-75">Currently absent</small>
+                        </div>
+                        <i class="fas fa-calendar-times fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <select class="form-select">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <select class="form-select">
+                        <option value="">All Leave Types</option>
+                        <option value="sick">Sick Leave</option>
+                        <option value="casual">Casual Leave</option>
+                        <option value="annual">Annual Leave</option>
+                        <option value="emergency">Emergency Leave</option>
+                    </select>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="{% url 'attendance:leave_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>New Leave Request
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leave Requests List -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-list text-primary me-2"></i>Leave Requests
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Employee</th>
+                            <th>Leave Type</th>
+                            <th>From Date</th>
+                            <th>To Date</th>
+                            <th>Days</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Pending Request 1 -->
+                        <tr class="table-warning">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-warning text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
+                                        AK
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">Dr. Ahmed Khan</div>
+                                        <small class="text-muted">EMP005</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-danger">Sick Leave</span></td>
+                            <td>Dec 18, 2025</td>
+                            <td>Dec 20, 2025</td>
+                            <td><strong>2 days</strong></td>
+                            <td>Fever and flu symptoms</td>
+                            <td>
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-hourglass-half me-1"></i>Pending
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-success" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-danger" title="Reject">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <button class="btn btn-info" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Pending Request 2 -->
+                        <tr class="table-warning">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-info text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
+                                        FH
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">Nurse Fatima</div>
+                                        <small class="text-muted">EMP006</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-primary">Annual Leave</span></td>
+                            <td>Dec 20, 2025</td>
+                            <td>Dec 25, 2025</td>
+                            <td><strong>5 days</strong></td>
+                            <td>Family vacation</td>
+                            <td>
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-hourglass-half me-1"></i>Pending
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-success" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-danger" title="Reject">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <button class="btn btn-info" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Approved Request -->
+                        <tr class="table-success">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-success text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
+                                        JD
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">Dr. John Doe</div>
+                                        <small class="text-muted">EMP001</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-info">Casual Leave</span></td>
+                            <td>Dec 15, 2025</td>
+                            <td>Dec 16, 2025</td>
+                            <td><strong>2 days</strong></td>
+                            <td>Personal matters</td>
+                            <td>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>Approved
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        <!-- Rejected Request -->
+                        <tr class="table-danger">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-danger text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
+                                        MJ
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">Michael Johnson</div>
+                                        <small class="text-muted">EMP003</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-warning">Emergency Leave</span></td>
+                            <td>Dec 10, 2025</td>
+                            <td>Dec 12, 2025</td>
+                            <td><strong>3 days</strong></td>
+                            <td>Urgent personal issue</td>
+                            <td>
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times-circle me-1"></i>Rejected
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

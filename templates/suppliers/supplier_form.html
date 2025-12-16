@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} Supplier - HMS{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Edit Supplier{% else %}Add New Supplier{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Back Button -->
+            <div class="mb-3">
+                <a href="{% url 'suppliers:supplier_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Supplier List
+                </a>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-truck me-2"></i>
+                        {% if form.instance.pk %}Edit Supplier Information{% else %}New Supplier Registration{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Company Information Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-building text-primary me-2"></i>Company Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_name" class="form-label">Company Name *</label>
+                                    <input type="text" name="name" class="form-control" id="id_name" 
+                                           value="{{ form.name.value|default:'' }}" required>
+                                    {% if form.name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_category" class="form-label">Category *</label>
+                                    <select name="category" class="form-select" id="id_category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="medical_equipment" {% if form.category.value == 'medical_equipment' %}selected{% endif %}>Medical Equipment</option>
+                                        <option value="pharmaceuticals" {% if form.category.value == 'pharmaceuticals' %}selected{% endif %}>Pharmaceuticals</option>
+                                        <option value="laboratory_supplies" {% if form.category.value == 'laboratory_supplies' %}selected{% endif %}>Laboratory Supplies</option>
+                                        <option value="office_supplies" {% if form.category.value == 'office_supplies' %}selected{% endif %}>Office Supplies</option>
+                                        <option value="cleaning_supplies" {% if form.category.value == 'cleaning_supplies' %}selected{% endif %}>Cleaning Supplies</option>
+                                        <option value="food_beverages" {% if form.category.value == 'food_beverages' %}selected{% endif %}>Food & Beverages</option>
+                                        <option value="it_equipment" {% if form.category.value == 'it_equipment' %}selected{% endif %}>IT Equipment</option>
+                                        <option value="other" {% if form.category.value == 'other' %}selected{% endif %}>Other</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_email" class="form-label">Email *</label>
+                                    <input type="email" name="email" class="form-control" id="id_email" 
+                                           value="{{ form.email.value|default:'' }}" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_phone" class="form-label">Phone Number *</label>
+                                    <input type="text" name="phone" class="form-control" id="id_phone" 
+                                           value="{{ form.phone.value|default:'' }}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_website" class="form-label">Website</label>
+                                    <input type="url" name="website" class="form-control" id="id_website" 
+                                           value="{{ form.website.value|default:'' }}" placeholder="https://example.com">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_tax_id" class="form-label">Tax ID / Registration Number</label>
+                                    <input type="text" name="tax_id" class="form-control" id="id_tax_id" 
+                                           value="{{ form.tax_id.value|default:'' }}">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_address" class="form-label">Address *</label>
+                                <textarea name="address" class="form-control" id="id_address" rows="2" required>{{ form.address.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Contact Person Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-user text-success me-2"></i>Contact Person
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_contact_person" class="form-label">Contact Person Name *</label>
+                                    <input type="text" name="contact_person" class="form-control" id="id_contact_person" 
+                                           value="{{ form.contact_person.value|default:'' }}" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_contact_phone" class="form-label">Contact Phone</label>
+                                    <input type="text" name="contact_phone" class="form-control" id="id_contact_phone" 
+                                           value="{{ form.contact_phone.value|default:'' }}">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_contact_email" class="form-label">Contact Email</label>
+                                    <input type="email" name="contact_email" class="form-control" id="id_contact_email" 
+                                           value="{{ form.contact_email.value|default:'' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment & Terms Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-credit-card text-info me-2"></i>Payment & Terms
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_payment_terms" class="form-label">Payment Terms</label>
+                                    <select name="payment_terms" class="form-select" id="id_payment_terms">
+                                        <option value="net_30" {% if form.payment_terms.value == 'net_30' %}selected{% endif %}>Net 30 Days</option>
+                                        <option value="net_60" {% if form.payment_terms.value == 'net_60' %}selected{% endif %}>Net 60 Days</option>
+                                        <option value="net_90" {% if form.payment_terms.value == 'net_90' %}selected{% endif %}>Net 90 Days</option>
+                                        <option value="cash_on_delivery" {% if form.payment_terms.value == 'cash_on_delivery' %}selected{% endif %}>Cash on Delivery</option>
+                                        <option value="advance_payment" {% if form.payment_terms.value == 'advance_payment' %}selected{% endif %}>Advance Payment</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_credit_limit" class="form-label">Credit Limit (৳)</label>
+                                    <input type="number" name="credit_limit" class="form-control" id="id_credit_limit" 
+                                           value="{{ form.credit_limit.value|default:'0' }}" step="0.01" min="0">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_status" class="form-label">Status</label>
+                                    <select name="status" class="form-select" id="id_status">
+                                        <option value="active" {% if form.status.value == 'active' or not form.status.value %}selected{% endif %}>Active</option>
+                                        <option value="inactive" {% if form.status.value == 'inactive' %}selected{% endif %}>Inactive</option>
+                                        <option value="blacklisted" {% if form.status.value == 'blacklisted' %}selected{% endif %}>Blacklisted</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_bank_name" class="form-label">Bank Name</label>
+                                    <input type="text" name="bank_name" class="form-control" id="id_bank_name" 
+                                           value="{{ form.bank_name.value|default:'' }}">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_bank_account" class="form-label">Bank Account Number</label>
+                                    <input type="text" name="bank_account" class="form-control" id="id_bank_account" 
+                                           value="{{ form.bank_account.value|default:'' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-info-circle text-warning me-2"></i>Additional Information
+                            </h6>
+                            <div class="mb-3">
+                                <label for="id_notes" class="form-label">Notes</label>
+                                <textarea name="notes" class="form-control" id="id_notes" rows="3" 
+                                          placeholder="Any additional notes about the supplier...">{{ form.notes.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'suppliers:supplier_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if form.instance.pk %}Update Supplier{% else %}Add Supplier{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
