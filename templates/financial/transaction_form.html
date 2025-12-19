@@ -1,0 +1,363 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}New{% endif %} Transaction - HMS{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Edit Transaction{% else %}New Transaction{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Back Button -->
+            <div class="mb-3">
+                <a href="{% url 'financial:transaction_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Transactions
+                </a>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        {% if form.instance.pk %}Edit Transaction{% else %}Record New Transaction{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Transaction Type Selection -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-tags text-primary me-2"></i>Transaction Type
+                            </h6>
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <div class="btn-group w-100" role="group">
+                                        <input type="radio" class="btn-check" name="transaction_type" id="type_income" 
+                                               value="income" {% if form.transaction_type.value == 'income' %}checked{% endif %} required>
+                                        <label class="btn btn-outline-success" for="type_income">
+                                            <i class="fas fa-arrow-up me-2"></i>Income
+                                        </label>
+
+                                        <input type="radio" class="btn-check" name="transaction_type" id="type_expense" 
+                                               value="expense" {% if form.transaction_type.value == 'expense' %}checked{% endif %}>
+                                        <label class="btn btn-outline-danger" for="type_expense">
+                                            <i class="fas fa-arrow-down me-2"></i>Expense
+                                        </label>
+
+                                        <input type="radio" class="btn-check" name="transaction_type" id="type_transfer" 
+                                               value="transfer" {% if form.transaction_type.value == 'transfer' %}checked{% endif %}>
+                                        <label class="btn btn-outline-primary" for="type_transfer">
+                                            <i class="fas fa-exchange-alt me-2"></i>Transfer
+                                        </label>
+                                    </div>
+                                    {% if form.transaction_type.errors %}
+                                        <div class="text-danger small mt-1">{{ form.transaction_type.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Basic Transaction Information -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-info-circle text-success me-2"></i>Transaction Details
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_transaction_id" class="form-label">Transaction ID</label>
+                                    <input type="text" name="transaction_id" class="form-control" id="id_transaction_id" 
+                                           value="{{ form.transaction_id.value|default:'TXN'|default:'' }}" 
+                                           placeholder="Auto-generated if left empty">
+                                    <small class="text-muted">Leave empty for auto-generation</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_date" class="form-label">Transaction Date *</label>
+                                    <input type="date" name="date" class="form-control" id="id_date" 
+                                           value="{{ form.date.value|date:'Y-m-d'|default:'' }}" required>
+                                    {% if form.date.errors %}
+                                        <div class="text-danger small mt-1">{{ form.date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3" id="account_field">
+                                    <label for="id_account" class="form-label">Account *</label>
+                                    <select name="account" class="form-select" id="id_account" required>
+                                        <option value="">Select Account</option>
+                                        {% if accounts %}
+                                            {% for account in accounts %}
+                                            <option value="{{ account.pk }}" 
+                                                    {% if form.account.value == account.pk %}selected{% endif %}>
+                                                {{ account.account_name }} ({{ account.account_number }}) - ৳{{ account.balance|floatformat:2 }}
+                                            </option>
+                                            {% endfor %}
+                                        {% else %}
+                                            <option value="">No accounts available</option>
+                                        {% endif %}
+                                    </select>
+                                    {% if form.account.errors %}
+                                        <div class="text-danger small mt-1">{{ form.account.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6 mb-3" id="to_account_field" style="display: none;">
+                                    <label for="id_to_account" class="form-label">To Account *</label>
+                                    <select name="to_account" class="form-select" id="id_to_account">
+                                        <option value="">Select Destination Account</option>
+                                        {% if accounts %}
+                                            {% for account in accounts %}
+                                            <option value="{{ account.pk }}">
+                                                {{ account.account_name }} ({{ account.account_number }})
+                                            </option>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_category" class="form-label">Category *</label>
+                                    <select name="category" class="form-select" id="id_category" required>
+                                        <option value="">Select Category</option>
+                                        <optgroup label="Income Categories" id="income_categories" style="display: none;">
+                                            <option value="patient_payment">Patient Payment</option>
+                                            <option value="insurance_payment">Insurance Payment</option>
+                                            <option value="consultation_fee">Consultation Fee</option>
+                                            <option value="procedure_fee">Procedure Fee</option>
+                                            <option value="pharmacy_sales">Pharmacy Sales</option>
+                                            <option value="lab_test_fee">Lab Test Fee</option>
+                                            <option value="other_income">Other Income</option>
+                                        </optgroup>
+                                        <optgroup label="Expense Categories" id="expense_categories" style="display: none;">
+                                            <option value="salary">Salary & Wages</option>
+                                            <option value="medical_supplies">Medical Supplies</option>
+                                            <option value="medicines">Medicines</option>
+                                            <option value="equipment">Equipment</option>
+                                            <option value="utilities">Utilities</option>
+                                            <option value="rent">Rent</option>
+                                            <option value="maintenance">Maintenance</option>
+                                            <option value="insurance">Insurance</option>
+                                            <option value="taxes">Taxes</option>
+                                            <option value="other_expense">Other Expense</option>
+                                        </optgroup>
+                                        <optgroup label="Transfer" id="transfer_category" style="display: none;">
+                                            <option value="internal_transfer">Internal Transfer</option>
+                                        </optgroup>
+                                    </select>
+                                    {% if form.category.errors %}
+                                        <div class="text-danger small mt-1">{{ form.category.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_amount" class="form-label">Amount *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">৳</span>
+                                        <input type="number" name="amount" class="form-control" id="id_amount" 
+                                               value="{{ form.amount.value|default:'' }}" step="0.01" min="0.01" required
+                                               placeholder="0.00">
+                                    </div>
+                                    {% if form.amount.errors %}
+                                        <div class="text-danger small mt-1">{{ form.amount.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_payment_method" class="form-label">Payment Method</label>
+                                    <select name="payment_method" class="form-select" id="id_payment_method">
+                                        <option value="cash" {% if form.payment_method.value == 'cash' %}selected{% endif %}>Cash</option>
+                                        <option value="bank_transfer" {% if form.payment_method.value == 'bank_transfer' %}selected{% endif %}>Bank Transfer</option>
+                                        <option value="cheque" {% if form.payment_method.value == 'cheque' %}selected{% endif %}>Cheque</option>
+                                        <option value="card" {% if form.payment_method.value == 'card' %}selected{% endif %}>Card</option>
+                                        <option value="mobile_banking" {% if form.payment_method.value == 'mobile_banking' %}selected{% endif %}>Mobile Banking</option>
+                                        <option value="online" {% if form.payment_method.value == 'online' %}selected{% endif %}>Online Payment</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-file-alt text-info me-2"></i>Description & Notes
+                            </h6>
+                            <div class="mb-3">
+                                <label for="id_description" class="form-label">Description *</label>
+                                <textarea name="description" class="form-control" id="id_description" rows="3" 
+                                          required placeholder="Enter transaction details...">{{ form.description.value|default:'' }}</textarea>
+                                {% if form.description.errors %}
+                                    <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_notes" class="form-label">Additional Notes</label>
+                                <textarea name="notes" class="form-control" id="id_notes" rows="2" 
+                                          placeholder="Any additional information...">{{ form.notes.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Reference Information -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-link text-warning me-2"></i>Reference Information (Optional)
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_reference_number" class="form-label">Reference Number</label>
+                                    <input type="text" name="reference_number" class="form-control" id="id_reference_number" 
+                                           value="{{ form.reference_number.value|default:'' }}"
+                                           placeholder="Invoice/Receipt/Cheque Number">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_party_name" class="form-label">Party Name</label>
+                                    <input type="text" name="party_name" class="form-control" id="id_party_name" 
+                                           value="{{ form.party_name.value|default:'' }}"
+                                           placeholder="Patient/Supplier/Vendor Name">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_related_entity" class="form-label">Related To</label>
+                                    <select name="related_entity" class="form-select" id="id_related_entity">
+                                        <option value="">Select Entity Type</option>
+                                        <option value="patient">Patient</option>
+                                        <option value="supplier">Supplier</option>
+                                        <option value="employee">Employee</option>
+                                        <option value="bill">Bill/Invoice</option>
+                                        <option value="purchase_order">Purchase Order</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_entity_id" class="form-label">Entity ID</label>
+                                    <input type="text" name="entity_id" class="form-control" id="id_entity_id" 
+                                           value="{{ form.entity_id.value|default:'' }}"
+                                           placeholder="e.g., P001, SUP001">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Attachments -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-paperclip text-danger me-2"></i>Attachments
+                            </h6>
+                            <div class="mb-3">
+                                <label for="id_attachment" class="form-label">Upload Receipt/Invoice</label>
+                                <input type="file" name="attachment" class="form-control" id="id_attachment" 
+                                       accept=".pdf,.jpg,.jpeg,.png">
+                                <small class="text-muted">Supported formats: PDF, JPG, PNG (Max 5MB)</small>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-check-circle text-secondary me-2"></i>Transaction Status
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_status" class="form-label">Status</label>
+                                    <select name="status" class="form-select" id="id_status">
+                                        <option value="completed" {% if form.status.value == 'completed' or not form.status.value %}selected{% endif %}>Completed</option>
+                                        <option value="pending" {% if form.status.value == 'pending' %}selected{% endif %}>Pending</option>
+                                        <option value="failed" {% if form.status.value == 'failed' %}selected{% endif %}>Failed</option>
+                                        <option value="cancelled" {% if form.status.value == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <div class="form-check mt-4">
+                                        <input class="form-check-input" type="checkbox" name="is_recurring" id="id_is_recurring"
+                                               {% if form.is_recurring.value %}checked{% endif %}>
+                                        <label class="form-check-label" for="id_is_recurring">
+                                            Recurring Transaction
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alert Messages -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Please correct the following errors:</strong>
+                            <ul class="mb-0 mt-2">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ field }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'financial:transaction_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {% if form.instance.pk %}Update Transaction{% else %}Record Transaction{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="mb-2"><i class="fas fa-info-circle text-info me-2"></i>Transaction Guidelines</h6>
+                    <ul class="small text-muted mb-0">
+                        <li><strong>Income:</strong> Money received into the account (Patient payments, insurance claims, etc.)</li>
+                        <li><strong>Expense:</strong> Money paid from the account (Salaries, supplies, utilities, etc.)</li>
+                        <li><strong>Transfer:</strong> Money moved between accounts (Internal transfers only)</li>
+                        <li>All transactions are recorded immediately and affect account balance</li>
+                        <li>Always attach receipts or invoices for audit purposes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show/hide categories based on transaction type
+const transactionTypes = document.querySelectorAll('input[name="transaction_type"]');
+const incomeCategories = document.getElementById('income_categories');
+const expenseCategories = document.getElementById('expense_categories');
+const transferCategory = document.getElementById('transfer_category');
+const toAccountField = document.getElementById('to_account_field');
+const categorySelect = document.getElementById('id_category');
+
+transactionTypes.forEach(type => {
+    type.addEventListener('change', function() {
+        // Hide all category groups
+        incomeCategories.style.display = 'none';
+        expenseCategories.style.display = 'none';
+        transferCategory.style.display = 'none';
+        toAccountField.style.display = 'none';
+        categorySelect.value = '';
+        
+        // Show relevant categories
+        if (this.value === 'income') {
+            incomeCategories.style.display = 'block';
+        } else if (this.value === 'expense') {
+            expenseCategories.style.display = 'block';
+        } else if (this.value === 'transfer') {
+            transferCategory.style.display = 'block';
+            toAccountField.style.display = 'block';
+        }
+    });
+});
+
+// Trigger change on page load
+document.querySelector('input[name="transaction_type"]:checked')?.dispatchEvent(new Event('change'));
+</script>
+{% endblock %}

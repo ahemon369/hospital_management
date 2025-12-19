@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{% if expense %}Edit{% else %}Add{% endif %} Expense - HMS{% endblock %}
+{% block page_title %}{% if expense %}Edit Expense{% else %}Add New Expense{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Back Button -->
+            <div class="mb-3">
+                <a href="{% url 'financial:expense_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Expenses
+                </a>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-receipt me-2"></i>
+                        {% if expense %}Edit Expense{% else %}Record New Expense{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Expense Information -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-info-circle text-primary me-2"></i>Expense Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_expense_id" class="form-label">Expense ID</label>
+                                    <input type="text" name="expense_id" class="form-control" id="id_expense_id" 
+                                           value="{% if expense %}{{ expense.expense_id }}{% else %}EXP-{% endif %}" 
+                                           placeholder="Auto-generated if left empty">
+                                    <small class="text-muted">Leave empty for auto-generation</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_date" class="form-label">Date *</label>
+                                    <input type="date" name="date" class="form-control" id="id_date" 
+                                           value="{% if expense %}{{ expense.date|date:'Y-m-d' }}{% endif %}" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_category" class="form-label">Category *</label>
+                                    <select name="category" class="form-select" id="id_category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="SALARY" {% if expense and expense.category == 'SALARY' %}selected{% endif %}>
+                                            Salary & Wages
+                                        </option>
+                                        <option value="PURCHASE" {% if expense and expense.category == 'PURCHASE' %}selected{% endif %}>
+                                            Medical Supplies
+                                        </option>
+                                        <option value="MEDICINE_PURCHASE" {% if expense and expense.category == 'MEDICINE_PURCHASE' %}selected{% endif %}>
+                                            Medicine Purchase
+                                        </option>
+                                        <option value="EQUIPMENT" {% if expense and expense.category == 'EQUIPMENT' %}selected{% endif %}>
+                                            Equipment
+                                        </option>
+                                        <option value="UTILITY" {% if expense and expense.category == 'UTILITY' %}selected{% endif %}>
+                                            Utilities
+                                        </option>
+                                        <option value="RENT" {% if expense and expense.category == 'RENT' %}selected{% endif %}>
+                                            Rent
+                                        </option>
+                                        <option value="MAINTENANCE" {% if expense and expense.category == 'MAINTENANCE' %}selected{% endif %}>
+                                            Maintenance
+                                        </option>
+                                        <option value="OTHER_EXPENSE" {% if expense and expense.category == 'OTHER_EXPENSE' %}selected{% endif %}>
+                                            Other Expense
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_amount" class="form-label">Amount *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">৳</span>
+                                        <input type="number" name="amount" class="form-control" id="id_amount" 
+                                               value="{% if expense %}{{ expense.amount }}{% endif %}" 
+                                               step="0.01" min="0.01" required placeholder="0.00">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_paid_to" class="form-label">Paid To *</label>
+                                    <input type="text" name="paid_to" class="form-control" id="id_paid_to" 
+                                           value="{% if expense %}{{ expense.paid_to }}{% endif %}" 
+                                           required placeholder="Vendor/Supplier Name">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_payment_method" class="form-label">Payment Method *</label>
+                                    <select name="payment_method" class="form-select" id="id_payment_method" required>
+                                        <option value="">Select Method</option>
+                                        <option value="CASH" {% if expense and expense.payment_method == 'CASH' %}selected{% endif %}>
+                                            Cash
+                                        </option>
+                                        <option value="BANK_TRANSFER" {% if expense and expense.payment_method == 'BANK_TRANSFER' %}selected{% endif %}>
+                                            Bank Transfer
+                                        </option>
+                                        <option value="CHEQUE" {% if expense and expense.payment_method == 'CHEQUE' %}selected{% endif %}>
+                                            Cheque
+                                        </option>
+                                        <option value="CARD" {% if expense and expense.payment_method == 'CARD' %}selected{% endif %}>
+                                            Card
+                                        </option>
+                                        <option value="BKASH" {% if expense and expense.payment_method == 'BKASH' %}selected{% endif %}>
+                                            bKash
+                                        </option>
+                                        <option value="NAGAD" {% if expense and expense.payment_method == 'NAGAD' %}selected{% endif %}>
+                                            Nagad
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-file-alt text-info me-2"></i>Description & Details
+                            </h6>
+                            <div class="mb-3">
+                                <label for="id_description" class="form-label">Description *</label>
+                                <textarea name="description" class="form-control" id="id_description" rows="3" 
+                                          required placeholder="Enter expense details...">{% if expense %}{{ expense.description }}{% endif %}</textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_receipt_number" class="form-label">Receipt Number</label>
+                                    <input type="text" name="receipt_number" class="form-control" id="id_receipt_number" 
+                                           value="{% if expense %}{{ expense.receipt_number }}{% endif %}"
+                                           placeholder="Invoice/Receipt Number">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_approved_by" class="form-label">Approved By</label>
+                                    <input type="text" name="approved_by" class="form-control" id="id_approved_by" 
+                                           value="{% if expense %}{{ expense.approved_by }}{% endif %}"
+                                           placeholder="Approver Name">
+                                    <small class="text-muted">Leave empty if not approved yet</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Attachment -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-paperclip text-warning me-2"></i>Attachment
+                            </h6>
+                            <div class="mb-3">
+                                <label for="id_attachment" class="form-label">Upload Receipt/Invoice</label>
+                                <input type="file" name="attachment" class="form-control" id="id_attachment" 
+                                       accept=".pdf,.jpg,.jpeg,.png">
+                                <small class="text-muted">Supported formats: PDF, JPG, PNG (Max 5MB)</small>
+                            </div>
+                        </div>
+
+                        <!-- Alert Messages -->
+                        {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'financial:expense_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>
+                                {% if expense %}Update Expense{% else %}Record Expense{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="mb-2">
+                        <i class="fas fa-info-circle text-info me-2"></i>Important Information
+                    </h6>
+                    <ul class="small text-muted mb-0">
+                        <li>All fields marked with * are required</li>
+                        <li>Expense ID will be auto-generated if left empty</li>
+                        <li>Always attach receipts or invoices for audit purposes</li>
+                        <li>Approved expenses cannot be modified without authorization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-generate expense ID
+document.addEventListener('DOMContentLoaded', function() {
+    const expenseIdInput = document.getElementById('id_expense_id');
+    if (expenseIdInput.value === 'EXP-') {
+        const timestamp = new Date().getTime();
+        expenseIdInput.value = 'EXP-' + timestamp.toString().slice(-8);
+    }
+});
+
+// Category icon preview
+document.getElementById('id_category').addEventListener('change', function() {
+    const category = this.value;
+    const icons = {
+        'SALARY': 'fa-user-tie',
+        'PURCHASE': 'fa-box-open',
+        'MEDICINE_PURCHASE': 'fa-pills',
+        'EQUIPMENT': 'fa-tools',
+        'UTILITY': 'fa-bolt',
+        'RENT': 'fa-home',
+        'MAINTENANCE': 'fa-wrench'
+    };
+    // You can add visual feedback here
+});
+</script>
+{% endblock %}

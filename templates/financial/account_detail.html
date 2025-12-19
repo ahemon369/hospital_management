@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Details - HMS{% endblock %}
+{% block page_title %}Account Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'financial:account_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Accounts
+        </a>
+    </div>
+
+    <!-- Account Header -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h3 class="mb-2">{{ account.account_name }}</h3>
+                            <p class="text-muted mb-3">
+                                <strong>Account Number:</strong> {{ account.account_number }}
+                            </p>
+                            <div class="d-flex gap-3">
+                                <span class="badge bg-primary">
+                                    {{ account.get_account_type_display }}
+                                </span>
+                                <span class="badge bg-{% if account.status == 'ACTIVE' %}success{% elif account.status == 'INACTIVE' %}warning{% else %}secondary{% endif %}">
+                                    {{ account.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="fas fa-edit me-2"></i>Edit Account
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'financial:transaction_create' %}" onclick="document.getElementById('account_select').value='{{ account.id }}'">
+                                        <i class="fas fa-plus me-2"></i>Add Transaction
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="#" onclick="return confirm('Are you sure?')">
+                                        <i class="fas fa-trash me-2"></i>Delete Account
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <h6 class="opacity-75 mb-2">CURRENT BALANCE</h6>
+                    <h2 class="mb-0">৳{{ account.balance|floatformat:2 }}</h2>
+                    <small class="opacity-75">As of today</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-2 opacity-75">TOTAL INCOME</h6>
+                            <h4 class="mb-0">৳{{ total_income|floatformat:2 }}</h4>
+                            <small class="opacity-75">All time</small>
+                        </div>
+                        <i class="fas fa-arrow-up fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-2 opacity-75">TOTAL EXPENSE</h6>
+                            <h4 class="mb-0">৳{{ total_expense|floatformat:2 }}</h4>
+                            <small class="opacity-75">All time</small>
+                        </div>
+                        <i class="fas fa-arrow-down fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-2 opacity-75">TRANSACTIONS</h6>
+                            <h4 class="mb-0">{{ transaction_count }}</h4>
+                            <small class="opacity-75">Total count</small>
+                        </div>
+                        <i class="fas fa-exchange-alt fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-2 opacity-75">NET CHANGE</h6>
+                            <h4 class="mb-0">৳{{ total_income|add:total_expense|floatformat:2 }}</h4>
+                            <small class="opacity-75">Income - Expense</small>
+                        </div>
+                        <i class="fas fa-chart-line fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Info & Recent Transactions -->
+    <div class="row">
+        <!-- Account Information -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle text-primary me-2"></i>Account Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Account Type</label>
+                        <div class="fw-bold">{{ account.get_account_type_display }}</div>
+                    </div>
+                    
+                    {% if account.bank_name %}
+                    <div class="mb-3">
+                        <label class="text-muted small">Bank Name</label>
+                        <div class="fw-bold">{{ account.bank_name }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if account.branch %}
+                    <div class="mb-3">
+                        <label class="text-muted small">Branch</label>
+                        <div class="fw-bold">{{ account.branch }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label class="text-muted small">Current Balance</label>
+                        <div class="fw-bold text-primary">৳{{ account.balance|floatformat:2 }}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="text-muted small">Created Date</label>
+                        <div class="fw-bold">{{ account.created_at|date:"F d, Y" }}</div>
+                    </div>
+                    
+                    <div class="mb-0">
+                        <label class="text-muted small">Status</label>
+                        <div>
+                            <span class="badge bg-{% if account.status == 'ACTIVE' %}success{% elif account.status == 'INACTIVE' %}warning{% else %}secondary{% endif %}">
+                                {{ account.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'financial:transaction_create' %}" class="btn btn-success">
+                            <i class="fas fa-plus me-2"></i>Add Transaction
+                        </a>
+                        <button class="btn btn-primary" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Print Statement
+                        </button>
+                        <button class="btn btn-info">
+                            <i class="fas fa-download me-2"></i>Export to Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history text-info me-2"></i>Transaction History
+                    </h5>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-secondary active">All</button>
+                        <button class="btn btn-outline-secondary">Income</button>
+                        <button class="btn btn-outline-secondary">Expense</button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Transaction ID</th>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Type</th>
+                                    <th class="text-end">Amount</th>
+                                    <th>Payment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in transactions %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ transaction.transaction_id }}</div>
+                                        {% if transaction.reference %}
+                                        <small class="text-muted">Ref: {{ transaction.reference }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div>{{ transaction.date|date:"M d, Y" }}</div>
+                                        <small class="text-muted">{{ transaction.created_at|date:"g:i A" }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ transaction.get_category_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if transaction.transaction_type == 'INCOME' %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-arrow-up me-1"></i>Income
+                                            </span>
+                                        {% elif transaction.transaction_type == 'EXPENSE' %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-arrow-down me-1"></i>Expense
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-exchange-alt me-1"></i>Transfer
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="fw-bold {% if transaction.transaction_type == 'INCOME' %}text-success{% elif transaction.transaction_type == 'EXPENSE' %}text-danger{% endif %}">
+                                            {% if transaction.transaction_type == 'INCOME' %}+{% elif transaction.transaction_type == 'EXPENSE' %}-{% endif %}৳{{ transaction.amount|floatformat:2 }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ transaction.get_payment_method_display }}
+                                        </small>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                        No transactions found
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                {% if transactions %}
+                <div class="card-footer bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">
+                            Showing last 20 transactions
+                        </span>
+                        <a href="{% url 'financial:transaction_list' %}" class="btn btn-sm btn-outline-primary">
+                            View All Transactions
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

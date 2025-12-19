@@ -13,8 +13,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <p class="mb-1 opacity-75">PRESENT TODAY</p>
-                            <h2 class="mb-0">48</h2>
-                            <small class="opacity-75">Out of 52 employees</small>
+                            <h2 class="mb-0">{{ total_present }}</h2>
+                            <small class="opacity-75">Out of {{ total_present|add:total_absent }} employees</small>
                         </div>
                         <i class="fas fa-user-check fa-3x opacity-50"></i>
                     </div>
@@ -28,7 +28,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <p class="mb-1 opacity-75">ABSENT TODAY</p>
-                            <h2 class="mb-0">4</h2>
+                            <h2 class="mb-0">{{ total_absent }}</h2>
                             <small class="opacity-75">Not present</small>
                         </div>
                         <i class="fas fa-user-times fa-3x opacity-50"></i>
@@ -43,7 +43,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <p class="mb-1 opacity-75">ON DUTY NOW</p>
-                            <h2 class="mb-0">35</h2>
+                            <h2 class="mb-0">{{ on_duty_count }}</h2>
                             <small class="opacity-75">Currently working</small>
                         </div>
                         <i class="fas fa-clock fa-3x opacity-50"></i>
@@ -58,7 +58,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <p class="mb-1 opacity-75">PENDING LEAVES</p>
-                            <h2 class="mb-0">7</h2>
+                            <h2 class="mb-0">{{ pending_leaves }}</h2>
                             <small class="opacity-75">Awaiting approval</small>
                         </div>
                         <i class="fas fa-calendar-times fa-3x opacity-50"></i>
@@ -110,7 +110,7 @@
             <div class="card shadow-sm">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-calendar-day text-primary me-2"></i>Today's Attendance</h5>
-                    <span class="badge bg-primary">December 17, 2025</span>
+                    <span class="badge bg-primary">{{ today|date:"F d, Y" }}</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -126,84 +126,60 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for attendance in attendances %}
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar-circle bg-success text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
-                                                JD
+                                            <div class="avatar-circle bg-{{ attendance.status|lower|default:'secondary' }} text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
+                                                {{ attendance.employee.user.first_name.0|upper }}{{ attendance.employee.user.last_name.0|upper }}
                                             </div>
                                             <div>
-                                                <div class="fw-bold">Dr. John Doe</div>
-                                                <small class="text-muted">EMP001</small>
+                                                <div class="fw-bold">{{ attendance.employee.user.get_full_name }}</div>
+                                                <small class="text-muted">{{ attendance.employee.employee_id }}</small>
                                             </div>
                                         </div>
                                     </td>
-                                    <td><span class="badge bg-info">Cardiology</span></td>
-                                    <td><i class="fas fa-clock text-success me-1"></i>08:30 AM</td>
-                                    <td><i class="fas fa-clock text-danger me-1"></i>05:30 PM</td>
-                                    <td><span class="badge bg-success">Present</span></td>
-                                    <td><strong>9h 0m</strong></td>
-                                </tr>
-                                <tr>
+                                    <td><span class="badge bg-info">{{ attendance.employee.department|default:"N/A" }}</span></td>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-circle bg-primary text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
-                                                SS
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold">Sarah Smith</div>
-                                                <small class="text-muted">EMP002</small>
-                                            </div>
-                                        </div>
+                                        {% if attendance.check_in %}
+                                            <i class="fas fa-clock text-success me-1"></i>{{ attendance.check_in|time:"g:i A" }}
+                                        {% else %}
+                                            <span class="text-muted">--:--</span>
+                                        {% endif %}
                                     </td>
-                                    <td><span class="badge bg-info">Nursing</span></td>
-                                    <td><i class="fas fa-clock text-success me-1"></i>08:45 AM</td>
-                                    <td><span class="text-muted">--:--</span></td>
-                                    <td><span class="badge bg-warning">On Duty</span></td>
-                                    <td><strong>7h 30m</strong></td>
-                                </tr>
-                                <tr>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-circle bg-warning text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
-                                                MJ
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold">Michael Johnson</div>
-                                                <small class="text-muted">EMP003</small>
-                                            </div>
-                                        </div>
+                                        {% if attendance.check_out %}
+                                            <i class="fas fa-clock text-danger me-1"></i>{{ attendance.check_out|time:"g:i A" }}
+                                        {% else %}
+                                            <span class="text-muted">--:--</span>
+                                        {% endif %}
                                     </td>
-                                    <td><span class="badge bg-info">Pharmacy</span></td>
-                                    <td><i class="fas fa-clock text-success me-1"></i>09:00 AM</td>
-                                    <td><span class="text-muted">--:--</span></td>
-                                    <td><span class="badge bg-warning">On Duty</span></td>
-                                    <td><strong>7h 15m</strong></td>
-                                </tr>
-                                <tr>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-circle bg-danger text-white me-2" style="width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">
-                                                EB
-                                            </div>
-                                            <div>
-                                                <div class="fw-bold">Emily Brown</div>
-                                                <small class="text-muted">EMP004</small>
-                                            </div>
-                                        </div>
+                                        {% if attendance.status == 'PRESENT' %}
+                                            {% if attendance.check_out %}
+                                                <span class="badge bg-success">Present</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">On Duty</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-danger">{{ attendance.get_status_display }}</span>
+                                        {% endif %}
                                     </td>
-                                    <td><span class="badge bg-info">Reception</span></td>
-                                    <td colspan="3" class="text-center">
-                                        <span class="badge bg-danger">Absent</span>
-                                    </td>
-                                    <td><strong>0h 0m</strong></td>
+                                    <td><strong>{{ attendance.working_hours|floatformat:0 }}h {{ attendance.working_hours|floatformat:2|slice:"3:"|default:"0" }}m</strong></td>
                                 </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        <i class="fas fa-info-circle me-2"></i>No attendance records for today
+                                    </td>
+                                </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <div class="card-footer bg-white text-center">
-                    <a href="{% url 'attendance:attendance_dashboard' %}" class="btn btn-sm btn-outline-primary">
+                    <a href="{% url 'attendance:attendance_report' %}" class="btn btn-sm btn-outline-primary">
                         View Full Attendance <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
@@ -222,34 +198,16 @@
                         <div class="list-group-item px-0">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <div class="fw-bold">Night Shift</div>
-                                    <small class="text-muted">12 employees</small>
+                                    <div class="fw-bold">Total On Duty</div>
+                                    <small class="text-muted">{{ on_duty_count }} employees</small>
                                 </div>
                                 <span class="badge bg-success">Active</span>
                             </div>
                         </div>
-                        <div class="list-group-item px-0">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="fw-bold">Emergency</div>
-                                    <small class="text-muted">8 employees</small>
-                                </div>
-                                <span class="badge bg-danger">Critical</span>
-                            </div>
-                        </div>
-                        <div class="list-group-item px-0">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="fw-bold">Day Shift</div>
-                                    <small class="text-muted">15 employees</small>
-                                </div>
-                                <span class="badge bg-primary">Scheduled</span>
-                            </div>
-                        </div>
                     </div>
                     <div class="d-grid mt-3">
-                        <a href="{% url 'attendance:shift_list' %}" class="btn btn-outline-primary btn-sm">
-                            Manage Shifts <i class="fas fa-arrow-right ms-1"></i>
+                        <a href="{% url 'attendance:on_duty_list' %}" class="btn btn-outline-primary btn-sm">
+                            View Full List <i class="fas fa-arrow-right ms-1"></i>
                         </a>
                     </div>
                 </div>
@@ -262,40 +220,35 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group list-group-flush">
+                        {% for leave in pending_leave_requests %}
                         <div class="list-group-item px-0">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
-                                    <div class="fw-bold">Dr. Ahmed Khan</div>
-                                    <small class="text-muted">Sick Leave - 2 days</small>
+                                    <div class="fw-bold">{{ leave.employee.user.get_full_name }}</div>
+                                    <small class="text-muted">{{ leave.get_leave_type_display }} - {{ leave.total_days }} day{{ leave.total_days|pluralize }}</small>
                                 </div>
                                 <span class="badge bg-warning">Pending</span>
                             </div>
                             <div class="d-flex gap-2">
-                                <button class="btn btn-success btn-sm flex-fill">
-                                    <i class="fas fa-check me-1"></i>Approve
-                                </button>
-                                <button class="btn btn-danger btn-sm flex-fill">
-                                    <i class="fas fa-times me-1"></i>Reject
-                                </button>
+                                <form method="post" action="{% url 'attendance:leave_approve' leave.pk %}" class="flex-fill">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-sm w-100">
+                                        <i class="fas fa-check me-1"></i>Approve
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'attendance:leave_reject' leave.pk %}" class="flex-fill">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm w-100">
+                                        <i class="fas fa-times me-1"></i>Reject
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                        <div class="list-group-item px-0">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div>
-                                    <div class="fw-bold">Nurse Fatima</div>
-                                    <small class="text-muted">Annual Leave - 5 days</small>
-                                </div>
-                                <span class="badge bg-warning">Pending</span>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-success btn-sm flex-fill">
-                                    <i class="fas fa-check me-1"></i>Approve
-                                </button>
-                                <button class="btn btn-danger btn-sm flex-fill">
-                                    <i class="fas fa-times me-1"></i>Reject
-                                </button>
-                            </div>
+                        {% empty %}
+                        <div class="list-group-item px-0 text-center text-muted">
+                            <i class="fas fa-check-circle me-2"></i>No pending requests
                         </div>
+                        {% endfor %}
                     </div>
                     <div class="d-grid mt-3">
                         <a href="{% url 'attendance:leave_list' %}" class="btn btn-outline-warning btn-sm">
@@ -314,28 +267,10 @@
                     <div class="mb-3">
                         <div class="d-flex justify-content-between mb-2">
                             <span>Average Attendance</span>
-                            <strong class="text-success">92%</strong>
+                            <strong class="text-success">{{ week_avg }}%</strong>
                         </div>
                         <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-success" style="width: 92%"></div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>On Time Arrival</span>
-                            <strong class="text-info">85%</strong>
-                        </div>
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-info" style="width: 85%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Leave Requests</span>
-                            <strong class="text-warning">8%</strong>
-                        </div>
-                        <div class="progress" style="height: 10px;">
-                            <div class="progress-bar bg-warning" style="width: 8%"></div>
+                            <div class="progress-bar bg-success" style="width: {{ week_avg }}%"></div>
                         </div>
                     </div>
                 </div>

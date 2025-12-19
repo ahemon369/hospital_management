@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Apply for{% endif %} Leave - HMS{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Edit Leave Request{% else %}Apply for Leave{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Back Button -->
+            <div class="mb-3">
+                <a href="{% url 'attendance:leave_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Leave List
+                </a>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-times me-2"></i>
+                        {% if form.instance.pk %}Edit Leave Request{% else %}New Leave Application{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Employee Information Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-user text-primary me-2"></i>Employee Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_employee" class="form-label">Employee *</label>
+                                    <select name="employee" class="form-select" id="id_employee" required>
+                                        <option value="">Select Employee</option>
+                                        <option value="1" {% if form.employee.value == '1' %}selected{% endif %}>Dr. John Doe (EMP001)</option>
+                                        <option value="2" {% if form.employee.value == '2' %}selected{% endif %}>Sarah Smith (EMP002)</option>
+                                        <option value="3" {% if form.employee.value == '3' %}selected{% endif %}>Michael Johnson (EMP003)</option>
+                                        <option value="4" {% if form.employee.value == '4' %}selected{% endif %}>Emily Brown (EMP004)</option>
+                                    </select>
+                                    {% if form.employee.errors %}
+                                        <div class="text-danger small mt-1">{{ form.employee.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_department" class="form-label">Department</label>
+                                    <input type="text" class="form-control" id="id_department" 
+                                           value="Cardiology" readonly disabled>
+                                    <small class="text-muted">Auto-filled based on employee</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Leave Details Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-calendar-alt text-success me-2"></i>Leave Details
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_leave_type" class="form-label">Leave Type *</label>
+                                    <select name="leave_type" class="form-select" id="id_leave_type" required>
+                                        <option value="">Select Leave Type</option>
+                                        <option value="sick" {% if form.leave_type.value == 'sick' %}selected{% endif %}>Sick Leave</option>
+                                        <option value="casual" {% if form.leave_type.value == 'casual' %}selected{% endif %}>Casual Leave</option>
+                                        <option value="annual" {% if form.leave_type.value == 'annual' %}selected{% endif %}>Annual Leave</option>
+                                        <option value="emergency" {% if form.leave_type.value == 'emergency' %}selected{% endif %}>Emergency Leave</option>
+                                        <option value="maternity" {% if form.leave_type.value == 'maternity' %}selected{% endif %}>Maternity Leave</option>
+                                        <option value="paternity" {% if form.leave_type.value == 'paternity' %}selected{% endif %}>Paternity Leave</option>
+                                        <option value="unpaid" {% if form.leave_type.value == 'unpaid' %}selected{% endif %}>Unpaid Leave</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Leave Balance</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" value="15 days" readonly disabled>
+                                        <span class="input-group-text">
+                                            <i class="fas fa-info-circle text-info"></i>
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">Available balance for selected type</small>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_from_date" class="form-label">From Date *</label>
+                                    <input type="date" name="from_date" class="form-control" id="id_from_date" 
+                                           value="{{ form.from_date.value|date:'Y-m-d'|default:'' }}" required>
+                                    {% if form.from_date.errors %}
+                                        <div class="text-danger small mt-1">{{ form.from_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_to_date" class="form-label">To Date *</label>
+                                    <input type="date" name="to_date" class="form-control" id="id_to_date" 
+                                           value="{{ form.to_date.value|date:'Y-m-d'|default:'' }}" required>
+                                    {% if form.to_date.errors %}
+                                        <div class="text-danger small mt-1">{{ form.to_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_total_days" class="form-label">Total Days</label>
+                                    <div class="input-group">
+                                        <input type="number" name="total_days" class="form-control" id="id_total_days" 
+                                               value="{{ form.total_days.value|default:'0' }}" readonly>
+                                        <span class="input-group-text">days</span>
+                                    </div>
+                                    <small class="text-muted">Auto-calculated from dates</small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_half_day" class="form-label">Leave Duration</label>
+                                    <select name="half_day" class="form-select" id="id_half_day">
+                                        <option value="false" {% if not form.half_day.value %}selected{% endif %}>Full Day</option>
+                                        <option value="true" {% if form.half_day.value %}selected{% endif %}>Half Day</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reason Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-comment-alt text-info me-2"></i>Reason for Leave
+                            </h6>
+                            <div class="mb-3">
+                                <label for="id_reason" class="form-label">Reason *</label>
+                                <textarea name="reason" class="form-control" id="id_reason" rows="4" 
+                                          required placeholder="Please provide a detailed reason for your leave request...">{{ form.reason.value|default:'' }}</textarea>
+                                {% if form.reason.errors %}
+                                    <div class="text-danger small mt-1">{{ form.reason.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_medical_certificate" class="form-label">
+                                    Medical Certificate (if applicable)
+                                </label>
+                                <input type="file" name="medical_certificate" class="form-control" 
+                                       id="id_medical_certificate" accept=".pdf,.jpg,.jpeg,.png">
+                                <small class="text-muted">Upload medical certificate for sick leave (PDF, JPG, PNG - Max 5MB)</small>
+                            </div>
+                        </div>
+
+                        <!-- Contact Information Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-phone text-warning me-2"></i>Contact During Leave
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_contact_phone" class="form-label">Contact Phone</label>
+                                    <input type="tel" name="contact_phone" class="form-control" id="id_contact_phone" 
+                                           value="{{ form.contact_phone.value|default:'' }}"
+                                           placeholder="+880 1XXX-XXXXXX">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_emergency_contact" class="form-label">Emergency Contact</label>
+                                    <input type="tel" name="emergency_contact" class="form-control" id="id_emergency_contact" 
+                                           value="{{ form.emergency_contact.value|default:'' }}"
+                                           placeholder="+880 1XXX-XXXXXX">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_address_during_leave" class="form-label">Address During Leave</label>
+                                <textarea name="address_during_leave" class="form-control" id="id_address_during_leave" 
+                                          rows="2" placeholder="Where you can be reached during leave period...">{{ form.address_during_leave.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Handover Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-exchange-alt text-danger me-2"></i>Work Handover (Optional)
+                            </h6>
+                            <div class="mb-3">
+                                <label for="id_relief_employee" class="form-label">Relief Employee</label>
+                                <select name="relief_employee" class="form-select" id="id_relief_employee">
+                                    <option value="">Select Employee (Optional)</option>
+                                    <option value="1">Dr. John Doe</option>
+                                    <option value="2">Sarah Smith</option>
+                                    <option value="3">Michael Johnson</option>
+                                </select>
+                                <small class="text-muted">Select who will handle your responsibilities</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_handover_notes" class="form-label">Handover Notes</label>
+                                <textarea name="handover_notes" class="form-control" id="id_handover_notes" 
+                                          rows="3" placeholder="Brief notes about pending work, important tasks, etc...">{{ form.handover_notes.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Status (for admin editing only) -->
+                        {% if user.is_staff %}
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-cog text-secondary me-2"></i>Admin Actions
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_status" class="form-label">Status</label>
+                                    <select name="status" class="form-select" id="id_status">
+                                        <option value="pending" {% if form.status.value == 'pending' or not form.status.value %}selected{% endif %}>Pending</option>
+                                        <option value="approved" {% if form.status.value == 'approved' %}selected{% endif %}>Approved</option>
+                                        <option value="rejected" {% if form.status.value == 'rejected' %}selected{% endif %}>Rejected</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_approved_by" class="form-label">Approved By</label>
+                                    <input type="text" name="approved_by" class="form-control" id="id_approved_by" 
+                                           value="{{ form.approved_by.value|default:'' }}" readonly>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_admin_remarks" class="form-label">Admin Remarks</label>
+                                <textarea name="admin_remarks" class="form-control" id="id_admin_remarks" 
+                                          rows="2" placeholder="Admin comments or reasons...">{{ form.admin_remarks.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Alert Messages -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Please correct the following errors:</strong>
+                            <ul class="mb-0 mt-2">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ field }}: {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'attendance:leave_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                {% if form.instance.pk %}Update Request{% else %}Submit Request{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="mb-2"><i class="fas fa-info-circle text-info me-2"></i>Leave Policy Reminders</h6>
+                    <ul class="small text-muted mb-0">
+                        <li>Leave requests should be submitted at least 3 days in advance (except emergency)</li>
+                        <li>Medical certificate is mandatory for sick leave exceeding 3 days</li>
+                        <li>Annual leave requires approval from department head</li>
+                        <li>Maximum consecutive leave allowed: 30 days (except maternity/paternity)</li>
+                        <li>Ensure all pending work is properly handed over before going on leave</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-calculate total days
+document.getElementById('id_from_date').addEventListener('change', calculateDays);
+document.getElementById('id_to_date').addEventListener('change', calculateDays);
+
+function calculateDays() {
+    const fromDate = new Date(document.getElementById('id_from_date').value);
+    const toDate = new Date(document.getElementById('id_to_date').value);
+    
+    if (fromDate && toDate && toDate >= fromDate) {
+        const diffTime = Math.abs(toDate - fromDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        document.getElementById('id_total_days').value = diffDays;
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,456 @@
+{% extends 'base.html' %}
+
+{% block title %}Budget Management - HMS{% endblock %}
+{% block page_title %}Budget Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'financial:financial_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Financial Dashboard
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">TOTAL BUDGET</p>
+                            <h2 class="mb-0">৳5.0M</h2>
+                            <small class="opacity-75">This year</small>
+                        </div>
+                        <i class="fas fa-calculator fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">SPENT</p>
+                            <h2 class="mb-0">৳3.2M</h2>
+                            <small class="opacity-75">64% utilized</small>
+                        </div>
+                        <i class="fas fa-money-bill-wave fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">REMAINING</p>
+                            <h2 class="mb-0">৳1.8M</h2>
+                            <small class="opacity-75">36% available</small>
+                        </div>
+                        <i class="fas fa-piggy-bank fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">CATEGORIES</p>
+                            <h2 class="mb-0">12</h2>
+                            <small class="opacity-75">Active budgets</small>
+                        </div>
+                        <i class="fas fa-list fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <select class="form-select">
+                        <option value="">All Categories</option>
+                        <option value="salary">Salary & Wages</option>
+                        <option value="medical_supplies">Medical Supplies</option>
+                        <option value="medicines">Medicines</option>
+                        <option value="equipment">Equipment</option>
+                        <option value="utilities">Utilities</option>
+                        <option value="maintenance">Maintenance</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <select class="form-select">
+                        <option value="2025">Year: 2025</option>
+                        <option value="2024">Year: 2024</option>
+                        <option value="2023">Year: 2023</option>
+                    </select>
+                </div>
+                <div class="col-md-3 mb-3 mb-md-0">
+                    <select class="form-select">
+                        <option value="">All Months</option>
+                        <option value="12">December</option>
+                        <option value="11">November</option>
+                        <option value="10">October</option>
+                    </select>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <a href="{% url 'financial:budget_create' %}" class="btn btn-primary w-100">
+                        <i class="fas fa-plus me-2"></i>Create Budget
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Cards -->
+    <div class="row">
+        <!-- Salary Budget -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-user-tie me-2"></i>Salary & Wages
+                        </h6>
+                        <span class="badge bg-light text-dark">Dec 2025</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Allocated:</span>
+                            <strong class="text-primary">৳850,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Spent:</span>
+                            <strong class="text-danger">৳785,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Remaining:</span>
+                            <strong class="text-success">৳65,000</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Utilization</small>
+                            <small class="fw-bold">92.4%</small>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: 92.4%">
+                                92.4%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <small>High utilization - Monitor spending</small>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>Details
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Supplies Budget -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-box-open me-2"></i>Medical Supplies
+                        </h6>
+                        <span class="badge bg-light text-dark">Dec 2025</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Allocated:</span>
+                            <strong class="text-primary">৳500,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Spent:</span>
+                            <strong class="text-danger">৳325,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Remaining:</span>
+                            <strong class="text-success">৳175,000</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Utilization</small>
+                            <small class="fw-bold">65%</small>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: 65%">
+                                65%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success mb-0">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <small>On track - Good spending control</small>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>Details
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medicines Budget -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-pills me-2"></i>Medicines
+                        </h6>
+                        <span class="badge bg-light text-dark">Dec 2025</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Allocated:</span>
+                            <strong class="text-primary">৳600,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Spent:</span>
+                            <strong class="text-danger">৳280,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Remaining:</span>
+                            <strong class="text-success">৳320,000</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Utilization</small>
+                            <small class="fw-bold">46.7%</small>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: 46.7%">
+                                46.7%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <small>Under budget - Good performance</small>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>Details
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equipment Budget -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning text-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-tools me-2"></i>Equipment
+                        </h6>
+                        <span class="badge bg-dark text-light">Dec 2025</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Allocated:</span>
+                            <strong class="text-primary">৳400,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Spent:</span>
+                            <strong class="text-danger">৳405,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Remaining:</span>
+                            <strong class="text-danger">-৳5,000</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Utilization</small>
+                            <small class="fw-bold text-danger">101.3%</small>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: 100%">
+                                101.3%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-danger mb-0">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <small>Over budget - Review required!</small>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>Details
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Utilities Budget -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-secondary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-bolt me-2"></i>Utilities
+                        </h6>
+                        <span class="badge bg-light text-dark">Dec 2025</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Allocated:</span>
+                            <strong class="text-primary">৳150,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Spent:</span>
+                            <strong class="text-danger">৳125,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Remaining:</span>
+                            <strong class="text-success">৳25,000</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Utilization</small>
+                            <small class="fw-bold">83.3%</small>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-secondary" role="progressbar" style="width: 83.3%">
+                                83.3%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-secondary mb-0">
+                        <i class="fas fa-check me-2"></i>
+                        <small>Normal spending pattern</small>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>Details
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Maintenance Budget -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-wrench me-2"></i>Maintenance
+                        </h6>
+                        <span class="badge bg-light text-dark">Dec 2025</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Allocated:</span>
+                            <strong class="text-primary">৳200,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Spent:</span>
+                            <strong class="text-danger">৳85,000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Remaining:</span>
+                            <strong class="text-success">৳115,000</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Utilization</small>
+                            <small class="fw-bold">42.5%</small>
+                        </div>
+                        <div class="progress" style="height: 25px;">
+                            <div class="progress-bar bg-dark" role="progressbar" style="width: 42.5%">
+                                42.5%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success mb-0">
+                        <i class="fas fa-thumbs-up me-2"></i>
+                        <small>Well under budget</small>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>Details
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

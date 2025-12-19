@@ -1,0 +1,425 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}New{% endif %} Purchase Order - HMS{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Edit Purchase Order{% else %}New Purchase Order{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Back Button -->
+            <div class="mb-3">
+                <a href="{% url 'suppliers:purchase_order_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Purchase Orders
+                </a>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        {% if form.instance.pk %}Edit Purchase Order{% else %}Create New Purchase Order{% endif %}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="purchaseOrderForm">
+                        {% csrf_token %}
+
+                        <!-- Order Information Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-info-circle text-primary me-2"></i>Order Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_order_number" class="form-label">Order Number</label>
+                                    <input type="text" name="order_number" class="form-control" id="id_order_number" 
+                                           value="{{ form.order_number.value|default:'PO' }}" 
+                                           placeholder="Auto-generated if left empty">
+                                    <small class="text-muted">Leave empty for auto-generation</small>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_order_date" class="form-label">Order Date *</label>
+                                    <input type="date" name="order_date" class="form-control" id="id_order_date" 
+                                           value="{{ form.order_date.value|date:'Y-m-d'|default:'' }}" required>
+                                    {% if form.order_date.errors %}
+                                        <div class="text-danger small mt-1">{{ form.order_date.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_expected_delivery" class="form-label">Expected Delivery Date</label>
+                                    <input type="date" name="expected_delivery" class="form-control" id="id_expected_delivery" 
+                                           value="{{ form.expected_delivery.value|date:'Y-m-d'|default:'' }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Supplier Information Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-truck text-success me-2"></i>Supplier Information
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_supplier" class="form-label">Supplier *</label>
+                                    <select name="supplier" class="form-select" id="id_supplier" required onchange="loadSupplierDetails(this)">
+                                        <option value="">Select Supplier</option>
+                                        <option value="1">Medical Supplies Ltd.</option>
+                                        <option value="2">PharmaCare International</option>
+                                        <option value="3">HealthEquip Solutions</option>
+                                        <option value="4">BioMed Distributors</option>
+                                    </select>
+                                    {% if form.supplier.errors %}
+                                        <div class="text-danger small mt-1">{{ form.supplier.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_supplier_contact" class="form-label">Contact Person</label>
+                                    <input type="text" class="form-control" id="id_supplier_contact" readonly 
+                                           placeholder="Auto-filled when supplier selected">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_supplier_phone" class="form-label">Phone</label>
+                                    <input type="text" class="form-control" id="id_supplier_phone" readonly>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="id_supplier_email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="id_supplier_email" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Items Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-list text-info me-2"></i>Order Items
+                            </h6>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="itemsTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 5%">#</th>
+                                            <th style="width: 30%">Item Name *</th>
+                                            <th style="width: 15%">Category</th>
+                                            <th style="width: 10%">Quantity *</th>
+                                            <th style="width: 10%">Unit</th>
+                                            <th style="width: 12%">Unit Price *</th>
+                                            <th style="width: 13%">Total</th>
+                                            <th style="width: 5%">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="itemsBody">
+                                        <tr class="item-row">
+                                            <td class="text-center">1</td>
+                                            <td>
+                                                <input type="text" class="form-control" name="item_name[]" required 
+                                                       placeholder="Enter item name">
+                                            </td>
+                                            <td>
+                                                <select class="form-select" name="item_category[]">
+                                                    <option value="">Select</option>
+                                                    <option value="medical_supplies">Medical Supplies</option>
+                                                    <option value="medicines">Medicines</option>
+                                                    <option value="equipment">Equipment</option>
+                                                    <option value="consumables">Consumables</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control quantity" name="quantity[]" 
+                                                       value="1" min="1" required onchange="calculateRowTotal(this)">
+                                            </td>
+                                            <td>
+                                                <select class="form-select" name="unit[]">
+                                                    <option value="pcs">Pieces</option>
+                                                    <option value="box">Box</option>
+                                                    <option value="pack">Pack</option>
+                                                    <option value="bottle">Bottle</option>
+                                                    <option value="kg">Kg</option>
+                                                    <option value="liter">Liter</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control unit-price" name="unit_price[]" 
+                                                       value="0" min="0" step="0.01" required onchange="calculateRowTotal(this)">
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control row-total" readonly 
+                                                       value="0.00" step="0.01">
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)" disabled>
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="8">
+                                                <button type="button" class="btn btn-sm btn-success" onclick="addNewRow()">
+                                                    <i class="fas fa-plus me-2"></i>Add Item
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Order Summary Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-calculator text-warning me-2"></i>Order Summary
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-8"></div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Subtotal:</span>
+                                                <strong id="subtotal">৳0.00</strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Tax (%):</span>
+                                                <div class="input-group input-group-sm" style="width: 120px;">
+                                                    <input type="number" class="form-control" id="tax_percentage" 
+                                                           name="tax_percentage" value="0" min="0" max="100" step="0.01" 
+                                                           onchange="calculateGrandTotal()">
+                                                    <span class="input-group-text">%</span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Tax Amount:</span>
+                                                <strong id="tax_amount">৳0.00</strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Shipping:</span>
+                                                <div class="input-group input-group-sm" style="width: 120px;">
+                                                    <span class="input-group-text">৳</span>
+                                                    <input type="number" class="form-control" id="shipping_cost" 
+                                                           name="shipping_cost" value="0" min="0" step="0.01" 
+                                                           onchange="calculateGrandTotal()">
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Discount:</span>
+                                                <div class="input-group input-group-sm" style="width: 120px;">
+                                                    <span class="input-group-text">৳</span>
+                                                    <input type="number" class="form-control" id="discount_amount" 
+                                                           name="discount_amount" value="0" min="0" step="0.01" 
+                                                           onchange="calculateGrandTotal()">
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <div class="d-flex justify-content-between">
+                                                <h5>Grand Total:</h5>
+                                                <h5 class="text-success" id="grand_total">৳0.00</h5>
+                                            </div>
+                                            <input type="hidden" name="total_amount" id="total_amount_hidden">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment & Delivery Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-credit-card text-danger me-2"></i>Payment & Delivery
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_payment_terms" class="form-label">Payment Terms</label>
+                                    <select name="payment_terms" class="form-select" id="id_payment_terms">
+                                        <option value="net_30">Net 30 Days</option>
+                                        <option value="net_60">Net 60 Days</option>
+                                        <option value="advance">Advance Payment</option>
+                                        <option value="cod">Cash on Delivery</option>
+                                        <option value="50_50">50% Advance, 50% on Delivery</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_delivery_address" class="form-label">Delivery Address</label>
+                                    <select name="delivery_address" class="form-select" id="id_delivery_address">
+                                        <option value="main">Main Hospital - Dhaka</option>
+                                        <option value="warehouse">Warehouse - Gazipur</option>
+                                        <option value="pharmacy">Pharmacy Department</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="id_status" class="form-label">Order Status</label>
+                                    <select name="status" class="form-select" id="id_status">
+                                        <option value="draft">Draft</option>
+                                        <option value="pending">Pending Approval</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="ordered">Ordered</option>
+                                        <option value="received">Received</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes Section -->
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <i class="fas fa-comment-alt text-secondary me-2"></i>Additional Notes
+                            </h6>
+                            <div class="mb-3">
+                                <label for="id_notes" class="form-label">Order Notes</label>
+                                <textarea name="notes" class="form-control" id="id_notes" rows="3" 
+                                          placeholder="Add any special instructions or notes...">{{ form.notes.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'suppliers:purchase_order_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </a>
+                            <button type="button" class="btn btn-outline-primary" onclick="saveDraft()">
+                                <i class="fas fa-save me-2"></i>Save as Draft
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check me-2"></i>
+                                {% if form.instance.pk %}Update Order{% else %}Create Order{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="mb-2"><i class="fas fa-info-circle text-info me-2"></i>Purchase Order Guidelines</h6>
+                    <ul class="small text-muted mb-0">
+                        <li>Ensure all item details are accurate before submitting the order</li>
+                        <li>Purchase orders require approval before being sent to suppliers</li>
+                        <li>Expected delivery date should be confirmed with the supplier</li>
+                        <li>All orders are tracked from creation to delivery</li>
+                        <li>Save as draft to continue editing later</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let rowCount = 1;
+
+// Add new item row
+function addNewRow() {
+    rowCount++;
+    const tbody = document.getElementById('itemsBody');
+    const newRow = tbody.querySelector('.item-row').cloneNode(true);
+    
+    // Update row number
+    newRow.querySelector('td:first-child').textContent = rowCount;
+    
+    // Clear input values
+    newRow.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+        if (!input.classList.contains('row-total')) {
+            input.value = input.type === 'number' ? (input.classList.contains('quantity') ? '1' : '0') : '';
+        } else {
+            input.value = '0.00';
+        }
+    });
+    
+    // Enable delete button
+    newRow.querySelector('.btn-danger').disabled = false;
+    
+    tbody.appendChild(newRow);
+    updateRowNumbers();
+}
+
+// Remove row
+function removeRow(button) {
+    const tbody = document.getElementById('itemsBody');
+    if (tbody.querySelectorAll('.item-row').length > 1) {
+        button.closest('.item-row').remove();
+        updateRowNumbers();
+        calculateGrandTotal();
+    }
+}
+
+// Update row numbers
+function updateRowNumbers() {
+    const rows = document.querySelectorAll('.item-row');
+    rows.forEach((row, index) => {
+        row.querySelector('td:first-child').textContent = index + 1;
+        row.querySelector('.btn-danger').disabled = rows.length === 1;
+    });
+    rowCount = rows.length;
+}
+
+// Calculate row total
+function calculateRowTotal(element) {
+    const row = element.closest('.item-row');
+    const quantity = parseFloat(row.querySelector('.quantity').value) || 0;
+    const unitPrice = parseFloat(row.querySelector('.unit-price').value) || 0;
+    const total = quantity * unitPrice;
+    
+    row.querySelector('.row-total').value = total.toFixed(2);
+    calculateGrandTotal();
+}
+
+// Calculate grand total
+function calculateGrandTotal() {
+    let subtotal = 0;
+    
+    // Calculate subtotal
+    document.querySelectorAll('.row-total').forEach(input => {
+        subtotal += parseFloat(input.value) || 0;
+    });
+    
+    // Get tax, shipping, discount
+    const taxPercentage = parseFloat(document.getElementById('tax_percentage').value) || 0;
+    const taxAmount = (subtotal * taxPercentage) / 100;
+    const shippingCost = parseFloat(document.getElementById('shipping_cost').value) || 0;
+    const discountAmount = parseFloat(document.getElementById('discount_amount').value) || 0;
+    
+    // Calculate grand total
+    const grandTotal = subtotal + taxAmount + shippingCost - discountAmount;
+    
+    // Update display
+    document.getElementById('subtotal').textContent = '৳' + subtotal.toFixed(2);
+    document.getElementById('tax_amount').textContent = '৳' + taxAmount.toFixed(2);
+    document.getElementById('grand_total').textContent = '৳' + grandTotal.toFixed(2);
+    document.getElementById('total_amount_hidden').value = grandTotal.toFixed(2);
+}
+
+// Load supplier details (demo function)
+function loadSupplierDetails(select) {
+    const supplierId = select.value;
+    if (supplierId) {
+        // In real implementation, fetch from server
+        document.getElementById('id_supplier_contact').value = 'John Doe';
+        document.getElementById('id_supplier_phone').value = '+880 1XXX-XXXXXX';
+        document.getElementById('id_supplier_email').value = 'contact@supplier.com';
+    } else {
+        document.getElementById('id_supplier_contact').value = '';
+        document.getElementById('id_supplier_phone').value = '';
+        document.getElementById('id_supplier_email').value = '';
+    }
+}
+
+// Save as draft
+function saveDraft() {
+    document.getElementById('id_status').value = 'draft';
+    document.getElementById('purchaseOrderForm').submit();
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    calculateGrandTotal();
+});
+</script>
+{% endblock %}

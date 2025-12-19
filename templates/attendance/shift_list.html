@@ -1,0 +1,440 @@
+{% extends 'base.html' %}
+
+{% block title %}Shift Management - HMS{% endblock %}
+{% block page_title %}Shift Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'attendance:attendance_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Attendance
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">TOTAL SHIFTS</p>
+                            <h2 class="mb-0">5</h2>
+                            <small class="opacity-75">Active shifts</small>
+                        </div>
+                        <i class="fas fa-clock fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">DAY SHIFT</p>
+                            <h2 class="mb-0">25</h2>
+                            <small class="opacity-75">Employees assigned</small>
+                        </div>
+                        <i class="fas fa-sun fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">NIGHT SHIFT</p>
+                            <h2 class="mb-0">18</h2>
+                            <small class="opacity-75">Employees assigned</small>
+                        </div>
+                        <i class="fas fa-moon fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">ROTATING</p>
+                            <h2 class="mb-0">9</h2>
+                            <small class="opacity-75">Employees assigned</small>
+                        </div>
+                        <i class="fas fa-sync-alt fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="input-group" style="max-width: 400px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" placeholder="Search shifts...">
+                </div>
+                <div>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Add New Shift
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shift Cards -->
+    <div class="row">
+        <!-- Day Shift -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-sun me-2"></i>Day Shift
+                        </h5>
+                        <span class="badge bg-light text-dark">25 Staff</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Shift Code:</span>
+                            <strong>DAY-001</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Timing:</span>
+                            <strong>08:00 AM - 08:00 PM</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Duration:</span>
+                            <strong>12 hours</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Break Time:</span>
+                            <strong>1 hour</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">Departments:</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge bg-info">Medical</span>
+                            <span class="badge bg-info">Nursing</span>
+                            <span class="badge bg-info">Reception</span>
+                            <span class="badge bg-info">Pharmacy</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">Working Days:</h6>
+                        <div class="d-flex gap-1">
+                            <span class="badge bg-primary">Mon</span>
+                            <span class="badge bg-primary">Tue</span>
+                            <span class="badge bg-primary">Wed</span>
+                            <span class="badge bg-primary">Thu</span>
+                            <span class="badge bg-primary">Fri</span>
+                            <span class="badge bg-secondary">Sat</span>
+                            <span class="badge bg-secondary">Sun</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>View
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-info flex-fill">
+                            <i class="fas fa-users me-1"></i>Staff
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Night Shift -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-moon me-2"></i>Night Shift
+                        </h5>
+                        <span class="badge bg-light text-dark">18 Staff</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Shift Code:</span>
+                            <strong>NIGHT-001</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Timing:</span>
+                            <strong>08:00 PM - 08:00 AM</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Duration:</span>
+                            <strong>12 hours</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Break Time:</span>
+                            <strong>1 hour</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">Departments:</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge bg-info">Emergency</span>
+                            <span class="badge bg-info">ICU</span>
+                            <span class="badge bg-info">Nursing</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">Working Days:</h6>
+                        <div class="d-flex gap-1">
+                            <span class="badge bg-primary">Mon</span>
+                            <span class="badge bg-primary">Tue</span>
+                            <span class="badge bg-primary">Wed</span>
+                            <span class="badge bg-primary">Thu</span>
+                            <span class="badge bg-primary">Fri</span>
+                            <span class="badge bg-primary">Sat</span>
+                            <span class="badge bg-primary">Sun</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>View
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-info flex-fill">
+                            <i class="fas fa-users me-1"></i>Staff
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency 24/7 Shift -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-danger text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-ambulance me-2"></i>Emergency 24/7
+                        </h5>
+                        <span class="badge bg-light text-dark">12 Staff</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Shift Code:</span>
+                            <strong>EMG-247</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Timing:</span>
+                            <strong>24/7 Coverage</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Duration:</span>
+                            <strong>24 hours</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Break Time:</span>
+                            <strong>2 hours (rotational)</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">Departments:</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge bg-danger">Emergency</span>
+                            <span class="badge bg-danger">Critical Care</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">Working Days:</h6>
+                        <div class="d-flex gap-1">
+                            <span class="badge bg-danger">Mon</span>
+                            <span class="badge bg-danger">Tue</span>
+                            <span class="badge bg-danger">Wed</span>
+                            <span class="badge bg-danger">Thu</span>
+                            <span class="badge bg-danger">Fri</span>
+                            <span class="badge bg-danger">Sat</span>
+                            <span class="badge bg-danger">Sun</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>View
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-info flex-fill">
+                            <i class="fas fa-users me-1"></i>Staff
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Morning Shift -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning text-dark">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cloud-sun me-2"></i>Morning Shift
+                        </h5>
+                        <span class="badge bg-dark">15 Staff</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Shift Code:</span>
+                            <strong>MOR-001</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Timing:</span>
+                            <strong>06:00 AM - 02:00 PM</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Duration:</span>
+                            <strong>8 hours</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Break Time:</span>
+                            <strong>30 minutes</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">Departments:</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge bg-info">Laboratory</span>
+                            <span class="badge bg-info">Reception</span>
+                            <span class="badge bg-info">Admin</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">Working Days:</h6>
+                        <div class="d-flex gap-1">
+                            <span class="badge bg-primary">Mon</span>
+                            <span class="badge bg-primary">Tue</span>
+                            <span class="badge bg-primary">Wed</span>
+                            <span class="badge bg-primary">Thu</span>
+                            <span class="badge bg-primary">Fri</span>
+                            <span class="badge bg-secondary">Sat</span>
+                            <span class="badge bg-secondary">Sun</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>View
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-info flex-fill">
+                            <i class="fas fa-users me-1"></i>Staff
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evening Shift -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cloud-moon me-2"></i>Evening Shift
+                        </h5>
+                        <span class="badge bg-light text-dark">12 Staff</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Shift Code:</span>
+                            <strong>EVE-001</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Timing:</span>
+                            <strong>02:00 PM - 10:00 PM</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Duration:</span>
+                            <strong>8 hours</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Break Time:</span>
+                            <strong>30 minutes</strong>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">Departments:</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge bg-info">Nursing</span>
+                            <span class="badge bg-info">Pharmacy</span>
+                            <span class="badge bg-info">OPD</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6 class="mb-2">Working Days:</h6>
+                        <div class="d-flex gap-1">
+                            <span class="badge bg-primary">Mon</span>
+                            <span class="badge bg-primary">Tue</span>
+                            <span class="badge bg-primary">Wed</span>
+                            <span class="badge bg-primary">Thu</span>
+                            <span class="badge bg-primary">Fri</span>
+                            <span class="badge bg-secondary">Sat</span>
+                            <span class="badge bg-secondary">Sun</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>View
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning flex-fill">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-sm btn-outline-info flex-fill">
+                            <i class="fas fa-users me-1"></i>Staff
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

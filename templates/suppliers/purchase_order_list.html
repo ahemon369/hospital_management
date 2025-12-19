@@ -1,0 +1,481 @@
+{% extends 'base.html' %}
+
+{% block title %}Purchase Orders - HMS{% endblock %}
+{% block page_title %}Purchase Orders{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'suppliers:supplier_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Suppliers
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">TOTAL ORDERS</p>
+                            <h2 class="mb-0">156</h2>
+                            <small class="opacity-75">All time</small>
+                        </div>
+                        <i class="fas fa-shopping-cart fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">PENDING</p>
+                            <h2 class="mb-0">12</h2>
+                            <small class="opacity-75">Awaiting approval</small>
+                        </div>
+                        <i class="fas fa-clock fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">COMPLETED</p>
+                            <h2 class="mb-0">128</h2>
+                            <small class="opacity-75">Delivered</small>
+                        </div>
+                        <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">THIS MONTH</p>
+                            <h2 class="mb-0">৳2.5M</h2>
+                            <small class="opacity-75">Total value</small>
+                        </div>
+                        <i class="fas fa-money-bill-wave fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-end">
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label small">Status</label>
+                    <select class="form-select">
+                        <option value="">All Status</option>
+                        <option value="draft">Draft</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="ordered">Ordered</option>
+                        <option value="received">Received</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label small">Supplier</label>
+                    <select class="form-select">
+                        <option value="">All Suppliers</option>
+                        <option value="1">Medical Supplies Ltd.</option>
+                        <option value="2">PharmaCare Int.</option>
+                        <option value="3">HealthEquip</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label small">From Date</label>
+                    <input type="date" class="form-control" value="2025-12-01">
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label small">To Date</label>
+                    <input type="date" class="form-control" value="2025-12-17">
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <button class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <a href="{% url 'suppliers:purchase_order_create' %}" class="btn btn-success w-100">
+                        <i class="fas fa-plus me-2"></i>New Order
+                    </a>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6 mb-2 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" placeholder="Search by order number, supplier...">
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <button class="btn btn-outline-secondary">
+                        <i class="fas fa-file-excel me-2"></i>Export
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-print me-2"></i>Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchase Orders List -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list text-primary me-2"></i>All Purchase Orders
+            </h5>
+            <span class="badge bg-primary">156 Orders</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order #</th>
+                            <th>Order Date</th>
+                            <th>Supplier</th>
+                            <th>Items</th>
+                            <th>Total Amount</th>
+                            <th>Payment Terms</th>
+                            <th>Expected Delivery</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Sample Order 1 - Pending -->
+                        <tr>
+                            <td><strong class="text-primary">PO-2025-001</strong></td>
+                            <td>
+                                <div>Dec 17, 2025</div>
+                                <small class="text-muted">10:30 AM</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold">Medical Supplies Ltd.</div>
+                                <small class="text-muted">Contact: John Doe</small>
+                            </td>
+                            <td><span class="badge bg-info">15 items</span></td>
+                            <td><strong class="text-success">৳45,000</strong></td>
+                            <td><span class="badge bg-secondary">Net 30</span></td>
+                            <td>Dec 24, 2025</td>
+                            <td>
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-hourglass-half me-1"></i>Pending
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'suppliers:purchase_order_detail' 1 %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'suppliers:purchase_order_update' 1 %}" class="btn btn-outline-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary" title="Print">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Sample Order 2 - Approved -->
+                        <tr>
+                            <td><strong class="text-primary">PO-2025-002</strong></td>
+                            <td>
+                                <div>Dec 16, 2025</div>
+                                <small class="text-muted">02:15 PM</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold">PharmaCare International</div>
+                                <small class="text-muted">Contact: Sarah Johnson</small>
+                            </td>
+                            <td><span class="badge bg-info">8 items</span></td>
+                            <td><strong class="text-success">৳32,500</strong></td>
+                            <td><span class="badge bg-secondary">Advance</span></td>
+                            <td>Dec 20, 2025</td>
+                            <td>
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-check me-1"></i>Approved
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'suppliers:purchase_order_detail' 2 %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'suppliers:purchase_order_update' 2 %}" class="btn btn-outline-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary" title="Print">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Sample Order 3 - Received -->
+                        <tr>
+                            <td><strong class="text-primary">PO-2025-003</strong></td>
+                            <td>
+                                <div>Dec 15, 2025</div>
+                                <small class="text-muted">11:00 AM</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold">HealthEquip Solutions</div>
+                                <small class="text-muted">Contact: Mike Chen</small>
+                            </td>
+                            <td><span class="badge bg-info">5 items</span></td>
+                            <td><strong class="text-success">৳78,000</strong></td>
+                            <td><span class="badge bg-secondary">50/50</span></td>
+                            <td>Dec 18, 2025</td>
+                            <td>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>Received
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'suppliers:purchase_order_detail' 3 %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary" title="Print">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                    <button class="btn btn-outline-info" title="Invoice">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Sample Order 4 - Ordered -->
+                        <tr>
+                            <td><strong class="text-primary">PO-2025-004</strong></td>
+                            <td>
+                                <div>Dec 14, 2025</div>
+                                <small class="text-muted">09:45 AM</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold">BioMed Distributors</div>
+                                <small class="text-muted">Contact: Emily Wong</small>
+                            </td>
+                            <td><span class="badge bg-info">20 items</span></td>
+                            <td><strong class="text-success">৳125,000</strong></td>
+                            <td><span class="badge bg-secondary">Net 60</span></td>
+                            <td>Dec 28, 2025</td>
+                            <td>
+                                <span class="badge bg-info">
+                                    <i class="fas fa-shipping-fast me-1"></i>Ordered
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'suppliers:purchase_order_detail' 4 %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary" title="Print">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                    <button class="btn btn-outline-success" title="Track">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Sample Order 5 - Draft -->
+                        <tr>
+                            <td><strong class="text-primary">PO-2025-005</strong></td>
+                            <td>
+                                <div>Dec 13, 2025</div>
+                                <small class="text-muted">03:20 PM</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold">Medical Supplies Ltd.</div>
+                                <small class="text-muted">Contact: John Doe</small>
+                            </td>
+                            <td><span class="badge bg-info">3 items</span></td>
+                            <td><strong class="text-success">৳15,500</strong></td>
+                            <td><span class="badge bg-secondary">COD</span></td>
+                            <td>Dec 22, 2025</td>
+                            <td>
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-file me-1"></i>Draft
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'suppliers:purchase_order_detail' 5 %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'suppliers:purchase_order_update' 5 %}" class="btn btn-outline-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-outline-danger" title="Delete" onclick="return confirm('Are you sure?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Sample Order 6 - Cancelled -->
+                        <tr class="table-secondary">
+                            <td><strong class="text-muted">PO-2025-006</strong></td>
+                            <td>
+                                <div>Dec 12, 2025</div>
+                                <small class="text-muted">01:10 PM</small>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-muted">PharmaCare International</div>
+                                <small class="text-muted">Contact: Sarah Johnson</small>
+                            </td>
+                            <td><span class="badge bg-secondary">10 items</span></td>
+                            <td><strong class="text-muted">৳52,000</strong></td>
+                            <td><span class="badge bg-secondary">Net 30</span></td>
+                            <td>Dec 19, 2025</td>
+                            <td>
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times-circle me-1"></i>Cancelled
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'suppliers:purchase_order_detail' 6 %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary" title="Print">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="card-footer bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                    Showing 1 to 6 of 156 orders
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">...</a></li>
+                        <li class="page-item"><a class="page-link" href="#">26</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Summary Cards -->
+    <div class="row mt-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>Orders by Status
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Pending Approval</span>
+                            <strong>12 (7.7%)</strong>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-warning" style="width: 7.7%">12</div>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Approved/Ordered</span>
+                            <strong>16 (10.3%)</strong>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-info" style="width: 10.3%">16</div>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Completed</span>
+                            <strong>128 (82%)</strong>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-success" style="width: 82%">128</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-trophy text-warning me-2"></i>Top Suppliers
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold">Medical Supplies Ltd.</div>
+                                <small class="text-muted">45 orders</small>
+                            </div>
+                            <span class="badge bg-primary">৳1.2M</span>
+                        </div>
+                        <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold">PharmaCare International</div>
+                                <small class="text-muted">38 orders</small>
+                            </div>
+                            <span class="badge bg-primary">৳950K</span>
+                        </div>
+                        <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold">HealthEquip Solutions</div>
+                                <small class="text-muted">32 orders</small>
+                            </div>
+                            <span class="badge bg-primary">৳780K</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

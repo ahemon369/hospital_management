@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+
+{% block title %}Transaction List - HMS{% endblock %}
+{% block page_title %}Transaction History{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'financial:financial_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Financial Dashboard
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">TOTAL INCOME</p>
+                            <h2 class="mb-0">৳1.2M</h2>
+                            <small class="opacity-75">This month</small>
+                        </div>
+                        <i class="fas fa-arrow-up fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">TOTAL EXPENSE</p>
+                            <h2 class="mb-0">৳800K</h2>
+                            <small class="opacity-75">This month</small>
+                        </div>
+                        <i class="fas fa-arrow-down fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">NET INCOME</p>
+                            <h2 class="mb-0">৳400K</h2>
+                            <small class="opacity-75">Profit</small>
+                        </div>
+                        <i class="fas fa-balance-scale fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1 opacity-75">TRANSACTIONS</p>
+                            <h2 class="mb-0">{{ transactions.count }}</h2>
+                            <small class="opacity-75">Total records</small>
+                        </div>
+                        <i class="fas fa-exchange-alt fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Actions -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row align-items-end">
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label small">Transaction Type</label>
+                    <select class="form-select">
+                        <option value="">All Types</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                        <option value="transfer">Transfer</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label small">Category</label>
+                    <select class="form-select">
+                        <option value="">All Categories</option>
+                        <option value="salary">Salary</option>
+                        <option value="medical">Medical</option>
+                        <option value="utilities">Utilities</option>
+                        <option value="supplies">Supplies</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label small">Account</label>
+                    <select class="form-select">
+                        <option value="">All Accounts</option>
+                        <option value="1">Main Account</option>
+                        <option value="2">Savings</option>
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label small">From Date</label>
+                    <input type="date" class="form-control" value="2025-12-01">
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label small">To Date</label>
+                    <input type="date" class="form-control" value="2025-12-17">
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <button class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-6 mb-2 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" placeholder="Search by description or reference...">
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="{% url 'financial:transaction_create' %}" class="btn btn-success">
+                        <i class="fas fa-plus me-2"></i>New Transaction
+                    </a>
+                    <button class="btn btn-outline-secondary">
+                        <i class="fas fa-file-excel me-2"></i>Export
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="fas fa-print me-2"></i>Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction List -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list text-primary me-2"></i>All Transactions
+            </h5>
+            <span class="badge bg-primary">{{ transactions.count }} Records</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Transaction ID</th>
+                            <th>Type</th>
+                            <th>Category</th>
+                            <th>Account</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Balance</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Sample Transaction 1 - Income -->
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-day text-muted me-2"></i>
+                                    <div>
+                                        <div class="fw-bold">Dec 17, 2025</div>
+                                        <small class="text-muted">10:30 AM</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><strong class="text-primary">TXN001</strong></td>
+                            <td>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-arrow-up me-1"></i>Income
+                                </span>
+                            </td>
+                            <td><span class="badge bg-info">Patient Payment</span></td>
+                            <td>Main Account</td>
+                            <td>
+                                <div>Patient consultation fee</div>
+                                <small class="text-muted">Patient ID: P001</small>
+                            </td>
+                            <td><strong class="text-success">+৳5,000</strong></td>
+                            <td>৳125,000</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'financial:transaction_detail' 1 %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary" title="Print">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Sample Transaction 2 - Expense -->
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-day text-muted me-2"></i>
+                                    <div>
+                                        <div class="fw-bold">Dec 16, 2025</div>
+                                        <small class="text-muted">02:15 PM</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><strong class="text-primary">TXN002</strong></td>
+                            <td>
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-arrow-down me-1"></i>Expense
+                                </span>
+                            </td>
+                            <td><span class="badge bg-warning">Medical Supplies</span></td>
+                            <td>Main Account</td>
+                            <td>
+                                <div>Purchase of surgical equipment</div>
+                                <small class="text-muted">Supplier: MedSupply Ltd.</small>
+                            </td>
+                            <td><strong class="text-danger">-৳15,000</strong></td>
+                            <td>৳120,000</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'financial:transaction_detail' 2 %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary" title="Print">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Sample Transaction 3 - Transfer -->
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-day text-muted me-2"></i>
+                                    <div>
+                                        <div class="fw-bold">Dec 15, 2025</div>
+                                        <small class="text-muted">11:00 AM</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><strong class="text-primary">TXN003</strong></td>
+                            <td>
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-exchange-alt me-1"></i>Transfer
+                                </span>
+                            </td>
+                            <td><span class="badge bg-secondary">Internal Transfer</span></td>
+                            <td>Main → Savings</td>
+                            <td>
+                                <div>Transfer to savings account</div>
+                                <small class="text-muted">Monthly saving</small>
+                            </td>
+                            <td><strong class="text-primary">৳50,000</strong></td>
+                            <td>৳135,000</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'financial:transaction_detail' 3 %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary" title="Print">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Sample Transaction 4 - Income -->
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar-day text-muted me-2"></i>
+                                    <div>
+                                        <div class="fw-bold">Dec 14, 2025</div>
+                                        <small class="text-muted">09:45 AM</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><strong class="text-primary">TXN004</strong></td>
+                            <td>
+                                <span class="badge bg-success">
+                                    <i class="fas fa-arrow-up me-1"></i>Income
+                                </span>
+                            </td>
+                            <td><span class="badge bg-info">Insurance Payment</span></td>
+                            <td>Main Account</td>
+                            <td>
+                                <div>Insurance claim settlement</div>
+                                <small class="text-muted">Claim ID: CL1234</small>
+                            </td>
+                            <td><strong class="text-success">+৳25,000</strong></td>
+                            <td>৳185,000</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'financial:transaction_detail' 4 %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button class="btn btn-outline-secondary" title="Print">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Empty State (if no transactions) -->
+                        {% if not transactions %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                <i class="fas fa-exchange-alt fa-3x mb-3 d-block"></i>
+                                <h5>No Transactions Found</h5>
+                                <p>Start recording your first transaction</p>
+                                <a href="{% url 'financial:transaction_create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Add Transaction
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="card-footer bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                    Showing 1 to 4 of 4 transactions
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

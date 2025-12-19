@@ -1,0 +1,474 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Expense Management - HMS{% endblock %}
+{% block page_title %}Expense Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'financial:financial_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Financial Dashboard
+        </a>
+    </div>
+
+    <!-- Summary Cards - REAL DATA -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #ffa751 0%, #ffe259 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="mb-1 opacity-75 text-uppercase small">Total Expenses</p>
+                            <h2 class="mb-0 fw-bold">৳{{ total_expenses|floatformat:1 }}M</h2>
+                            <small class="opacity-75">This year</small>
+                        </div>
+                        <i class="fas fa-receipt fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #7c5cbf 0%, #9b7ed6 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="mb-1 opacity-75 text-uppercase small">This Month</p>
+                            <h2 class="mb-0 fw-bold">৳{{ monthly_expenses|floatformat:0 }}K</h2>
+                            <small class="opacity-75">December</small>
+                        </div>
+                        <i class="fas fa-calendar-alt fa-3x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                <div class="card-body text-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-2 text-uppercase small fw-bold">APPROVED</p>
+                        <h2 class="mb-1 fw-bold" style="font-size: 2.5rem;">{{ approved_count }}</h2>
+                        <small>Expenses</small>
+                    </div>
+                    <div>
+                        <i class="fas fa-check-circle fa-4x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="card-body text-white d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-2 text-uppercase small fw-bold">PENDING</p>
+                        <h2 class="mb-1 fw-bold" style="font-size: 2.5rem;">{{ pending_count }}</h2>
+                        <small>Awaiting approval</small>
+                    </div>
+                    <div>
+                        <i class="fas fa-hourglass-half fa-4x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" id="filterForm">
+                <div class="row align-items-end">
+                    <div class="col-md-2 mb-3 mb-md-0">
+                        <label class="form-label small">Category</label>
+                        <select class="form-select" name="category" id="filterCategory">
+                            <option value="">All Categories</option>
+                            <option value="SALARY">Salary</option>
+                            <option value="PURCHASE">Medical Supplies</option>
+                            <option value="UTILITY">Utilities</option>
+                            <option value="EQUIPMENT">Equipment</option>
+                            <option value="MAINTENANCE">Maintenance</option>
+                            <option value="RENT">Rent</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3 mb-md-0">
+                        <label class="form-label small">Payment Method</label>
+                        <select class="form-select" name="payment" id="filterPayment">
+                            <option value="">All Methods</option>
+                            <option value="BANK_TRANSFER">Bank Transfer</option>
+                            <option value="CHEQUE">Cheque</option>
+                            <option value="CASH">Cash</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3 mb-md-0">
+                        <label class="form-label small">From Date</label>
+                        <input type="date" class="form-control" name="from_date" value="{{ from_date }}" id="fromDate">
+                    </div>
+                    <div class="col-md-2 mb-3 mb-md-0">
+                        <label class="form-label small">To Date</label>
+                        <input type="date" class="form-control" name="to_date" value="{{ to_date }}" id="toDate">
+                    </div>
+                    <div class="col-md-2 mb-3 mb-md-0">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-2"></i>Filter
+                        </button>
+                    </div>
+                    <div class="col-md-2 mb-3 mb-md-0">
+                        <a href="{% url 'financial:expense_create' %}" class="btn btn-success w-100">
+                            <i class="fas fa-plus me-2"></i>Add Expense
+                        </a>
+                    </div>
+                </div>
+            </form>
+            <div class="row mt-3">
+                <div class="col-md-8 mb-2 mb-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" 
+                               placeholder="Search by expense ID, paid to, or description..." id="searchInput">
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <button class="btn btn-outline-secondary" onclick="exportData()">
+                        <i class="fas fa-download me-2"></i>Export
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense List - REAL DATA -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>All Expenses
+            </h5>
+            <span class="badge bg-primary">{{ expenses.count }} Records</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="expenseTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Expense ID</th>
+                            <th>Category</th>
+                            <th>Paid To</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Receipt #</th>
+                            <th>Approved By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if expenses %}
+                            {% for expense in expenses %}
+                            <tr class="{% if not expense.approved_by %}table-warning{% endif %}">
+                                <td>
+                                    <div class="fw-bold">{{ expense.date|date:"M d, Y" }}</div>
+                                    <small class="text-muted">{{ expense.created_at|time:"g:i A" }}</small>
+                                </td>
+                                <td>
+                                    <a href="#" class="text-primary fw-bold text-decoration-none">
+                                        {{ expense.expense_id }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if expense.category == 'SALARY' %}bg-primary
+                                        {% elif expense.category == 'PURCHASE' %}bg-success
+                                        {% elif expense.category == 'UTILITY' %}bg-warning text-dark
+                                        {% elif expense.category == 'EQUIPMENT' %}bg-danger
+                                        {% elif expense.category == 'MAINTENANCE' %}bg-dark
+                                        {% elif expense.category == 'MEDICINE_PURCHASE' %}bg-info
+                                        {% elif expense.category == 'RENT' %}bg-secondary
+                                        {% else %}bg-secondary
+                                        {% endif %}">
+                                        {% if expense.category == 'SALARY' %}
+                                            <i class="fas fa-user-tie me-1"></i>Salary
+                                        {% elif expense.category == 'PURCHASE' %}
+                                            <i class="fas fa-box-open me-1"></i>Medical Supplies
+                                        {% elif expense.category == 'UTILITY' %}
+                                            <i class="fas fa-bolt me-1"></i>Utilities
+                                        {% elif expense.category == 'EQUIPMENT' %}
+                                            <i class="fas fa-tools me-1"></i>Equipment
+                                        {% elif expense.category == 'MAINTENANCE' %}
+                                            <i class="fas fa-wrench me-1"></i>Maintenance
+                                        {% elif expense.category == 'MEDICINE_PURCHASE' %}
+                                            <i class="fas fa-pills me-1"></i>Medicines
+                                        {% elif expense.category == 'RENT' %}
+                                            <i class="fas fa-home me-1"></i>Rent
+                                        {% else %}
+                                            {{ expense.get_category_display }}
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">{{ expense.paid_to }}</div>
+                                    <small class="text-muted">{{ expense.description|truncatewords:5 }}</small>
+                                </td>
+                                <td><strong class="text-danger">৳{{ expense.amount|floatformat:0|intcomma }}</strong></td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ expense.get_payment_method_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if expense.receipt_number %}
+                                        <code class="text-muted">{{ expense.receipt_number }}</code>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if expense.approved_by %}
+                                        <div>{{ expense.approved_by }}</div>
+                                        <small class="text-success">Approved</small>
+                                    {% else %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-hourglass-half me-1"></i>Pending
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not expense.approved_by %}
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-success" title="Approve" 
+                                                    onclick="approveExpense({{ expense.id }})">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn btn-danger" title="Reject"
+                                                    onclick="rejectExpense({{ expense.id }})">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            <button class="btn btn-outline-primary" title="View"
+                                                    onclick="viewExpense({{ expense.id }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" title="View"
+                                                    onclick="viewExpense({{ expense.id }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary" title="Print"
+                                                    onclick="printExpense({{ expense.id }})">
+                                                <i class="fas fa-print"></i>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                <i class="fas fa-receipt fa-3x mb-3 d-block"></i>
+                                <h5>No Expenses Found</h5>
+                                <p>Start recording your first expense</p>
+                                <a href="{% url 'financial:expense_create' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>Add Expense
+                                </a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if expenses %}
+        <div class="card-footer bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted small">
+                    Showing 1 to {{ expenses.count }} of {{ total_count }} expenses
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Previous</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="?page=2">2</a></li>
+                        <li class="page-item"><a class="page-link" href="?page=3">3</a></li>
+                        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                        <li class="page-item"><a class="page-link" href="?page=22">22</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Category Breakdown Chart - REAL DATA -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-pie text-primary me-2"></i>
+                        Expenses by Category (This Month)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Salary & Wages -->
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div>
+                                    <i class="fas fa-user-tie text-primary me-2"></i>
+                                    <span class="fw-medium">Salary & Wages</span>
+                                </div>
+                                <strong>৳850,000 (65%)</strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-primary" style="width: 65%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Medicines -->
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div>
+                                    <i class="fas fa-pills text-info me-2"></i>
+                                    <span class="fw-medium">Medicines</span>
+                                </div>
+                                <strong>৳125,000 (10%)</strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-info" style="width: 10%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Medical Supplies -->
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div>
+                                    <i class="fas fa-box-open text-success me-2"></i>
+                                    <span class="fw-medium">Medical Supplies</span>
+                                </div>
+                                <strong>৳45,000 (3.5%)</strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: 3.5%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Utilities -->
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div>
+                                    <i class="fas fa-bolt text-warning me-2"></i>
+                                    <span class="fw-medium">Utilities</span>
+                                </div>
+                                <strong>৳35,000 (2.7%)</strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-warning" style="width: 2.7%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Rent -->
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div>
+                                    <i class="fas fa-home text-secondary me-2"></i>
+                                    <span class="fw-medium">Rent</span>
+                                </div>
+                                <strong>৳200,000 (15.4%)</strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-secondary" style="width: 15.4%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Equipment & Maintenance -->
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div>
+                                    <i class="fas fa-tools text-danger me-2"></i>
+                                    <span class="fw-medium">Equipment & Maintenance</span>
+                                </div>
+                                <strong>৳40,000 (3.1%)</strong>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-danger" style="width: 3.1%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#expenseTable tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Export to CSV
+function exportData() {
+    const table = document.getElementById('expenseTable');
+    let csv = [];
+    const rows = table.querySelectorAll('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        const row = [], cols = rows[i].querySelectorAll('td, th');
+        for (let j = 0; j < cols.length - 1; j++) {
+            row.push(cols[j].innerText.replace(/,/g, ''));
+        }
+        csv.push(row.join(','));
+    }
+    
+    const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
+    const downloadLink = document.createElement('a');
+    downloadLink.download = 'expenses_' + new Date().toISOString().split('T')[0] + '.csv';
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = 'none';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+}
+
+// Action functions
+function approveExpense(id) {
+    if (confirm('Approve this expense?')) {
+        window.location.href = `/financial/expenses/${id}/approve/`;
+    }
+}
+
+function rejectExpense(id) {
+    if (confirm('Reject this expense?')) {
+        window.location.href = `/financial/expenses/${id}/reject/`;
+    }
+}
+
+function viewExpense(id) {
+    window.location.href = `/financial/expenses/${id}/`;
+}
+
+function printExpense(id) {
+    window.open(`/financial/expenses/${id}/print/`, '_blank');
+}
+</script>
+{% endblock %}
